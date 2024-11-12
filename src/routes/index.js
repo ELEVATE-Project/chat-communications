@@ -140,7 +140,7 @@ module.exports = (app) => {
 		if (controllerResponse) {
 			res.status(controllerResponse.statusCode).json({
 				responseCode: controllerResponse.responseCode,
-				message: controllerResponse.message,
+				message: req.t(controllerResponse.message),
 				result: controllerResponse.result,
 				meta: controllerResponse.meta,
 			})
@@ -176,6 +176,7 @@ module.exports = (app) => {
 				meta: {},
 				message,
 			}
+			options.message = error.interpolation ? req.t(message, interpolationOptions) : req.t(message)
 
 			res.status(status).json(options)
 		} else {
