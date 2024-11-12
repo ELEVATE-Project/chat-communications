@@ -2,33 +2,92 @@ let table = require('cli-table')
 
 let tableData = new table()
 
-let enviromentVariables = {
-	APPLICATION_PORT: {
-		message: 'Required port no',
-		optional: true,
-		default: 3123,
-	},
+let environmentVariables = {
 	APPLICATION_ENV: {
 		message: 'Required node environment',
 		optional: false,
 	},
+
+	APPLICATION_PORT: {
+		message: 'Required port number',
+		optional: true,
+		default: 3123,
+	},
+
 	APPLICATION_BASE_URL: {
-		message: 'Required application base url',
+		message: 'Required application base URL',
 		optional: true,
 		default: '/communications/',
 	},
 
 	API_DOC_URL: {
-		message: 'Required api doc url',
+		message: 'Required API documentation URL',
 		optional: true,
 		default: '/api-doc',
+	},
+
+	CHAT_PLATFORM: {
+		message: 'Chat platform name',
+		optional: false,
+	},
+
+	CHAT_PLATFORM_URL: {
+		message: 'Chat platform base URL',
+		optional: false,
+	},
+
+	CHAT_PLATFORM_ADMIN_EMAIL: {
+		message: 'Chat platform admin email',
+		optional: false,
+	},
+
+	CHAT_PLATFORM_ADMIN_PASSWORD: {
+		message: 'Chat platform admin password',
+		optional: false,
+	},
+
+	CHAT_PLATFORM_ADMIN_USER_ID: {
+		message: 'Chat platform admin user ID',
+		optional: false,
+	},
+
+	INTERNAL_ACCESS_TOKEN: {
+		message: 'Internal access token for secure communication',
+		optional: false,
+	},
+
+	DEV_DATABASE_URL: {
+		message: 'Development database URL',
+		optional: false,
+	},
+
+	USERNAME_HASH_SALT: {
+		message: 'Salt for username hashing',
+		optional: false,
+	},
+
+	PASSWORD_HASH_SALT: {
+		message: 'Salt for password hashing',
+		optional: false,
+	},
+
+	USERNAME_HASH_LENGTH: {
+		message: 'Length of the hashed username',
+		optional: true,
+		default: '8',
+	},
+
+	PASSWORD_HASH_LENGTH: {
+		message: 'Length of the hashed password',
+		optional: true,
+		default: '8',
 	},
 }
 
 let success = true
 
 module.exports = function () {
-	Object.keys(enviromentVariables).forEach((eachEnvironmentVariable) => {
+	Object.keys(environmentVariables).forEach((eachEnvironmentVariable) => {
 		let tableObj = {
 			[eachEnvironmentVariable]: 'PASSED',
 		}
@@ -36,30 +95,30 @@ module.exports = function () {
 		let keyCheckPass = true
 
 		if (
-			enviromentVariables[eachEnvironmentVariable].optional === true &&
-			enviromentVariables[eachEnvironmentVariable].requiredIf &&
-			enviromentVariables[eachEnvironmentVariable].requiredIf.key &&
-			enviromentVariables[eachEnvironmentVariable].requiredIf.key != '' &&
-			enviromentVariables[eachEnvironmentVariable].requiredIf.operator &&
-			validRequiredIfOperators.includes(enviromentVariables[eachEnvironmentVariable].requiredIf.operator) &&
-			enviromentVariables[eachEnvironmentVariable].requiredIf.value &&
-			enviromentVariables[eachEnvironmentVariable].requiredIf.value != ''
+			environmentVariables[eachEnvironmentVariable].optional === true &&
+			environmentVariables[eachEnvironmentVariable].requiredIf &&
+			environmentVariables[eachEnvironmentVariable].requiredIf.key &&
+			environmentVariables[eachEnvironmentVariable].requiredIf.key != '' &&
+			environmentVariables[eachEnvironmentVariable].requiredIf.operator &&
+			validRequiredIfOperators.includes(environmentVariables[eachEnvironmentVariable].requiredIf.operator) &&
+			environmentVariables[eachEnvironmentVariable].requiredIf.value &&
+			environmentVariables[eachEnvironmentVariable].requiredIf.value != ''
 		) {
-			switch (enviromentVariables[eachEnvironmentVariable].requiredIf.operator) {
+			switch (environmentVariables[eachEnvironmentVariable].requiredIf.operator) {
 				case 'EQUALS':
 					if (
-						process.env[enviromentVariables[eachEnvironmentVariable].requiredIf.key] ===
-						enviromentVariables[eachEnvironmentVariable].requiredIf.value
+						process.env[environmentVariables[eachEnvironmentVariable].requiredIf.key] ===
+						environmentVariables[eachEnvironmentVariable].requiredIf.value
 					) {
-						enviromentVariables[eachEnvironmentVariable].optional = false
+						environmentVariables[eachEnvironmentVariable].optional = false
 					}
 					break
 				case 'NOT_EQUALS':
 					if (
-						process.env[enviromentVariables[eachEnvironmentVariable].requiredIf.key] !=
-						enviromentVariables[eachEnvironmentVariable].requiredIf.value
+						process.env[environmentVariables[eachEnvironmentVariable].requiredIf.key] !=
+						environmentVariables[eachEnvironmentVariable].requiredIf.value
 					) {
-						enviromentVariables[eachEnvironmentVariable].optional = false
+						environmentVariables[eachEnvironmentVariable].optional = false
 					}
 					break
 				default:
@@ -67,23 +126,23 @@ module.exports = function () {
 			}
 		}
 
-		if (enviromentVariables[eachEnvironmentVariable].optional === false) {
+		if (environmentVariables[eachEnvironmentVariable].optional === false) {
 			if (!process.env[eachEnvironmentVariable] || process.env[eachEnvironmentVariable] == '') {
 				success = false
 				keyCheckPass = false
 			} else if (
-				enviromentVariables[eachEnvironmentVariable].possibleValues &&
-				Array.isArray(enviromentVariables[eachEnvironmentVariable].possibleValues) &&
-				enviromentVariables[eachEnvironmentVariable].possibleValues.length > 0
+				environmentVariables[eachEnvironmentVariable].possibleValues &&
+				Array.isArray(environmentVariables[eachEnvironmentVariable].possibleValues) &&
+				environmentVariables[eachEnvironmentVariable].possibleValues.length > 0
 			) {
 				if (
-					!enviromentVariables[eachEnvironmentVariable].possibleValues.includes(
+					!environmentVariables[eachEnvironmentVariable].possibleValues.includes(
 						process.env[eachEnvironmentVariable]
 					)
 				) {
 					success = false
 					keyCheckPass = false
-					enviromentVariables[eachEnvironmentVariable].message += ` Valid values - ${enviromentVariables[
+					environmentVariables[eachEnvironmentVariable].message += ` Valid values - ${environmentVariables[
 						eachEnvironmentVariable
 					].possibleValues.join(', ')}`
 				}
@@ -92,15 +151,15 @@ module.exports = function () {
 
 		if (
 			(!process.env[eachEnvironmentVariable] || process.env[eachEnvironmentVariable] == '') &&
-			enviromentVariables[eachEnvironmentVariable].default &&
-			enviromentVariables[eachEnvironmentVariable].default != ''
+			environmentVariables[eachEnvironmentVariable].default &&
+			environmentVariables[eachEnvironmentVariable].default != ''
 		) {
-			process.env[eachEnvironmentVariable] = enviromentVariables[eachEnvironmentVariable].default
+			process.env[eachEnvironmentVariable] = environmentVariables[eachEnvironmentVariable].default
 		}
 
 		if (!keyCheckPass) {
-			if (enviromentVariables[eachEnvironmentVariable].message !== '') {
-				tableObj[eachEnvironmentVariable] = enviromentVariables[eachEnvironmentVariable].message
+			if (environmentVariables[eachEnvironmentVariable].message !== '') {
+				tableObj[eachEnvironmentVariable] = environmentVariables[eachEnvironmentVariable].message
 			} else {
 				tableObj[eachEnvironmentVariable] = `FAILED - ${eachEnvironmentVariable} is required`
 			}
