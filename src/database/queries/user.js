@@ -1,32 +1,30 @@
 'use strict'
-const FileUpload = require('../models/index').User
+const User = require('../models/index').User
 
 exports.create = async (data) => {
 	try {
-		const createFileUpload = await FileUpload.create(data)
-		const result = createFileUpload.get({ plain: true })
-		return result
+		const user = await User.create(data)
+		return user.get({ plain: true })
 	} catch (error) {
-		return error
+		throw error
 	}
 }
 
 exports.findOne = async (filter, options = {}) => {
 	try {
-		return await FileUpload.findOne({
+		return await User.findOne({
 			where: filter,
 			...options,
 			raw: true,
 		})
 	} catch (error) {
 		throw error
-		return error
 	}
 }
 
 exports.update = async (filter, update, options = {}) => {
 	try {
-		const [res] = await FileUpload.update(update, {
+		const [res] = await User.update(update, {
 			where: filter,
 			...options,
 			individualHooks: true,
@@ -34,38 +32,6 @@ exports.update = async (filter, update, options = {}) => {
 
 		return res
 	} catch (error) {
-		return error
-	}
-}
-
-exports.listUploads = async (page, limit, status, organization_id) => {
-	try {
-		let filterQuery = {
-			where: {},
-			attributes: {
-				exclude: ['created_at', 'updated_at', 'deleted_at', 'updated_by'],
-			},
-			offset: parseInt((page - 1) * limit, 10),
-			limit: parseInt(limit, 10),
-		}
-
-		if (organization_id) {
-			filterQuery.where.organization_id = organization_id
-		}
-
-		if (status) {
-			filterQuery.where.status = status
-		}
-
-		const result = await FileUpload.findAndCountAll(filterQuery)
-		const transformedResult = {
-			count: result.count,
-			data: result.rows.map((row) => {
-				return row.get({ plain: true })
-			}),
-		}
-		return transformedResult
-	} catch (error) {
-		return error
+		throw error
 	}
 }
