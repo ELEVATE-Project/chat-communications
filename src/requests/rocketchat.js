@@ -1,4 +1,5 @@
 const axios = require('axios')
+const apiEndpoints = require('@constants/endpoints')
 
 const chatPlatformAxios = axios.create({
 	baseURL: process.env.CHAT_PLATFORM_URL,
@@ -10,6 +11,19 @@ const chatPlatformAxios = axios.create({
 	},
 })
 
+const buildSignupPayload = (name, username, password, email) => ({
+	name,
+	username,
+	password,
+	email,
+	verified: true,
+	setRandomPassword: false,
+	requirePasswordChange: false,
+	customFields: {},
+	sendWelcomeEmail: false,
+	joinDefaultChannels: false,
+})
+
 // Common error handler
 const handleError = (error) => {
 	if (error.response) {
@@ -19,7 +33,6 @@ const handleError = (error) => {
 		}
 		if (error.response.status === 400 && error.response.data.errorType === 'error-invalid-user') {
 			console.log('Unauthorized error-invalid-user - check your credentials or token')
-
 			throw new Error('invalid-users')
 		}
 	} else {
@@ -31,19 +44,9 @@ const handleError = (error) => {
 // Sign up function
 exports.signup = async (name, username, password, email) => {
 	try {
-		const payload = {
-			name,
-			username,
-			password,
-			email,
-			verified: true,
-			setRandomPassword: false,
-			requirePasswordChange: false,
-			customFields: {},
-			sendWelcomeEmail: false,
-			joinDefaultChannels: false,
-		}
-		const response = await chatPlatformAxios.post('/api/v1/users.create', payload)
+		const payload = buildSignupPayload(name, username, password, email)
+
+		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.USERS_CREATE, payload)
 		return {
 			user_id: response.data.user._id,
 		}
@@ -56,7 +59,8 @@ exports.signup = async (name, username, password, email) => {
 exports.login = async (username, password) => {
 	try {
 		const payload = { user: username, password }
-		const response = await chatPlatformAxios.post('/api/v1/login', payload)
+		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.LOGIN, payload)
+
 		return {
 			user_id: response.data.data.userId,
 			auth_token: response.data.data.authToken,
@@ -73,7 +77,7 @@ exports.adminLogin = async () => {
 			user: process.env.CHAT_PLATFORM_ADMIN_EMAIL,
 			password: process.env.CHAT_PLATFORM_ADMIN_PASSWORD,
 		}
-		const response = await chatPlatformAxios.post('/api/v1/login', payload)
+		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.LOGIN, payload)
 		return response.data
 	} catch (error) {
 		return handleError(error)
@@ -84,8 +88,7 @@ exports.adminLogin = async () => {
 exports.initiateChatRoom = async (usernames, excludeSelf = true) => {
 	try {
 		const payload = { usernames: usernames.join(','), excludeSelf }
-		const response = await chatPlatformAxios.post('/api/v1/im.create', payload)
-		//console.log('Response::', response.data)
+		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.IM_CREATE, payload)
 		return {
 			room: {
 				room_id: response.data.room.rid,
@@ -96,53 +99,49 @@ exports.initiateChatRoom = async (usernames, excludeSelf = true) => {
 	}
 }
 
+// Logout function
 exports.logout = async (userId, token) => {
 	try {
-		// Create a new Axios instance for sending the message with the user's token
-		const userAxios = axios.create({
-			baseURL: process.env.CHAT_PLATFORM_URL,
-			headers: {
-				'X-Auth-Token': token,
-				'X-User-Id': userId,
-				'Content-Type': 'application/json',
-				accept: 'application/json',
-			},
-		})
-
-		const response = await userAxios.post('/api/v1/logout')
-		console.log('Logged out!!')
+		const response = await chatPlatformAxios.post(
+			apiEndpoints.ROCKETCHAT.LOGOUT,
+			{},
+			{
+				headers: {
+					'X-Auth-Token': token,
+					'X-User-Id': userId,
+				},
+			}
+		)
 		return response.data
 	} catch (error) {
 		return handleError(error)
 	}
 }
+
+// Logout other clients function
 exports.logoutOtherClients = async (userId, token) => {
 	try {
-		// Create a new Axios instance for sending the message with the user's token
-		const userAxios = axios.create({
-			baseURL: process.env.CHAT_PLATFORM_URL,
-			headers: {
-				'X-Auth-Token': token,
-				'X-User-Id': userId,
-				'Content-Type': 'application/json',
-				accept: 'application/json',
-			},
-		})
-
-		const response = await userAxios.post('/api/v1/users.logoutOtherClients')
-		console.log('Logged out!!', response.data)
+		const response = await chatPlatformAxios.post(
+			apiEndpoints.ROCKETCHAT.LOGOUT_OTHER_CLIENTS,
+			{},
+			{
+				headers: {
+					'X-Auth-Token': token,
+					'X-User-Id': userId,
+				},
+			}
+		)
 		return response.data
 	} catch (error) {
 		return handleError(error)
 	}
 }
+
 // Send message function
 exports.sendMessage = async (username, password, rid, msg) => {
 	try {
-		// Call the login function to get the user ID and auth token
 		const loginResponse = await this.login(username, password)
 
-		// Check if login was successful and retrieve the auth token
 		if (loginResponse.auth_token) {
 			const payload = {
 				message: {
@@ -151,20 +150,14 @@ exports.sendMessage = async (username, password, rid, msg) => {
 				},
 			}
 
-			// Create a new Axios instance for sending the message with the user's token
-			const userAxios = axios.create({
-				baseURL: process.env.CHAT_PLATFORM_URL,
+			const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.CHAT_SEND_MESSAGE, payload, {
 				headers: {
 					'X-Auth-Token': loginResponse.auth_token,
 					'X-User-Id': loginResponse.user_id,
-					'Content-Type': 'application/json',
-					accept: 'application/json',
 				},
 			})
 
-			const response = await userAxios.post('/api/v1/chat.sendMessage', payload)
-
-			this.logout(loginResponse.user_id, loginResponse.auth_token)
+			await this.logout(loginResponse.user_id, loginResponse.auth_token)
 
 			return response.data
 		} else {
@@ -175,28 +168,21 @@ exports.sendMessage = async (username, password, rid, msg) => {
 	}
 }
 
+// Set avatar function
 exports.setAvatar = async (username, imageUrl) => {
 	try {
-		// Step 1: Download the image from the provided URL
-		const imageResponse = await axios.get(imageUrl, {
-			responseType: 'arraybuffer',
-		})
-
-		// Convert the ArrayBuffer to Blob
+		const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' })
 		const imageBuffer = Buffer.from(imageResponse.data)
 		const imageBlob = new Blob([imageBuffer], { type: 'image/jpeg' })
 
-		// Generate a timestamp for the filename
 		const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
 		const filename = `avatar-${timestamp}.jpg`
 
-		// Step 2: Prepare the image data and username in FormData for the API request
 		const form = new FormData()
 		form.append('image', imageBlob, filename)
 		form.append('username', username)
 
-		// Step 3: Send the image data to the setAvatar API endpoint
-		const response = await chatPlatformAxios.post(`${process.env.CHAT_PLATFORM_URL}/api/v1/users.setAvatar`, form, {
+		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.USERS_SET_AVATAR, form, {
 			headers: {
 				'Content-Type': 'multipart/form-data',
 			},
