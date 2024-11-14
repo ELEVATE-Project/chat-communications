@@ -1,8 +1,26 @@
+// Declare chatAPIs variable at a higher scope
+let chatAPIs
+
+// Define a map for different chat platforms
+const chatPlatformModules = {
+	rocketchat: '@requests/rocketchat',
+}
+
+// Get the module path based on CHAT_PLATFORM env variable
+const chatPlatform = process.env.CHAT_PLATFORM
+const modulePath = chatPlatformModules[chatPlatform]
+
+// Dynamically assign to chatAPIs
+if (modulePath) {
+	chatAPIs = require(modulePath)
+} else {
+	throw new Error(`Unsupported CHAT_PLATFORM: ${chatPlatform}`)
+}
+
 const httpStatusCode = require('@generics/http-status')
 const apiResponses = require('@constants/api-responses')
 const responses = require('@helpers/responses')
 const { usernameHash, passwordHash } = require('@generics/utils')
-const chatAPIs = require('@requests/rocketchat')
 const userQueries = require('../database/queries/user')
 
 /**
