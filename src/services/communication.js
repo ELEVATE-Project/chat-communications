@@ -25,7 +25,7 @@ module.exports = class CommunicationHelper {
 			return responses.successResponse({
 				statusCode: httpStatusCode.created,
 				message: 'USER_ALREADY_EXISTS',
-				result: chatResponse,
+				result: userExists,
 			})
 		}
 		let chatResponse = await chatAPIs.signup(
