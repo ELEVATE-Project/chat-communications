@@ -95,7 +95,6 @@ exports.initiateChatRoom = async (usernames, excludeSelf = true) => {
 			},
 		}
 	} catch (error) {
-		console.log(error, 'aaaaaaaaaaaaaaaaaaaaaeeee')
 		throw handleError(error)
 	}
 }
