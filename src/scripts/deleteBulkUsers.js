@@ -68,12 +68,9 @@ async function manageUsers() {
 	// Fetch all users
 	const users = await fetchAllUsers(excludedUserIds)
 
-	// Log users and their details
-	console.log(
-		'Users fetched:',
-		users.map((user) => user.name)
-	)
-
+	// Log the total count of users
+	console.log(`Total users fetched (excluding exclusions): ${users.length}`)
+	console.log('Deleting please wait...')
 	// Delete users
 	for (const user of users) {
 		const result = await deleteUser(user._id)
