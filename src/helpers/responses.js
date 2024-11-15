@@ -17,7 +17,9 @@ const successResponse = ({ statusCode = 200, responseCode = 'OK', message, resul
 		meta,
 	}
 
-	console.log('Request Response', { response: response })
+	if (process.env.ENABLE_LOG) {
+		console.debug('Request Response:', { response })
+	}
 
 	return response
 }

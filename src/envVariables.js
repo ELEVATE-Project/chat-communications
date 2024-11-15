@@ -13,6 +13,11 @@ let environmentVariables = {
 		optional: true,
 		default: 3123,
 	},
+	ENABLE_LOG: {
+		message: 'Enable logs',
+		optional: true,
+		default: false,
+	},
 
 	APPLICATION_BASE_URL: {
 		message: 'Required application base URL',
