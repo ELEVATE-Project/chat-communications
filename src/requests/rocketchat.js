@@ -28,7 +28,7 @@ const buildSignupPayload = (name, username, password, email) => ({
 const handleError = (error) => {
 	if (error.response) {
 		if (error.response.status === 401) {
-			console.log('Unauthorized access - check your credentials or token')
+			console.log('Unauthorized access - check your credentials or token', error.message)
 			throw new Error('unauthorized')
 		}
 		if (error.response.status === 400 && error.response.data.errorType === 'error-invalid-user') {
@@ -95,6 +95,7 @@ exports.initiateChatRoom = async (usernames, excludeSelf = true) => {
 			},
 		}
 	} catch (error) {
+		console.log(error, 'aaaaaaaaaaaaaaaaaaaaaeeee')
 		throw handleError(error)
 	}
 }

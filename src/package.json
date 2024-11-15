@@ -60,6 +60,7 @@
 		"@public": "public",
 		"@routes": "routes",
 		"@services": "services",
-		"@requests": "requests"
+		"@requests": "requests",
+		"@database": "database"
 	}
 }

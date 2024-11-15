@@ -7,7 +7,7 @@ const process = require('process')
 const basename = path.basename(__filename)
 const env = process.env.NODE_ENV || 'development'
 //const config = require(__dirname + '../../configs/postgres.js')[env]
-const config = require('../../configs/postgres')[env]
+const config = require('@configs/postgres')[env]
 
 const db = {}
 let sequelize

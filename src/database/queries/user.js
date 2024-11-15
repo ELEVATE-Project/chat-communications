@@ -1,5 +1,5 @@
 'use strict'
-const User = require('../models/index').User
+const User = require('@database/models/index').User
 
 exports.create = async (data) => {
 	try {
