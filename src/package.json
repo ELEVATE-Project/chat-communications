@@ -1,0 +1,66 @@
+{
+	"name": "communications",
+	"version": "1.0.0",
+	"description": "Middleware to communicate with chat services",
+	"main": "app.js",
+	"scripts": {
+		"test": "jest --verbose ./test --config=jest.config.js",
+		"start": "nodemon app.js",
+		"prod": "node app.js",
+		"stage": "node app.js",
+		"prepare": "cd .. && husky install src/.husky",
+		"test:integration": "jest --verbose ./integration-test  --config=integrationJest.config.js --runInBand",
+		"db:init": "sequelize-cli db:create && sequelize-cli db:migrate ",
+		"db:seed:all": "sequelize-cli db:seed:all"
+	},
+	"author": "Nevil Mathew",
+	"license": "ISC",
+	"dependencies": {
+		"axios": "^1.7.7",
+		"cli-table": "^0.3.11",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.5",
+		"express": "^4.21.0",
+		"express-validator": "^7.2.0",
+		"i18next": "^23.16.5",
+		"i18next-fs-backend": "^2.3.2",
+		"i18next-http-middleware": "^3.6.0",
+		"module-alias": "^2.2.3",
+		"pg": "^8.13.0",
+		"pg-hstore": "^2.3.4",
+		"sequelize": "^6.37.3",
+		"sequelize-cli": "^6.6.2"
+	},
+	"devDependencies": {
+		"eslint": "^8.16.0",
+		"husky": "^8.0.1",
+		"jest": "^28.1.1",
+		"jest-json-schema": "^6.1.0",
+		"jest-junit": "^14.0.1",
+		"lint-staged": "^12.4.1",
+		"nodemon": "^2.0.13",
+		"prettier": "^2.6.2",
+		"superagent-defaults": "^0.1.14",
+		"supertest": "^6.3.1",
+		"wait-on": "^6.0.1"
+	},
+	"lint-staged": {
+		"../*": "prettier --ignore-unknown --write",
+		"*": "prettier --ignore-unknown --write"
+	},
+	"_moduleAliases": {
+		"@root": ".",
+		"@configs": "configs",
+		"@constants": "constants",
+		"@controllers": "controllers",
+		"@generics": "generics",
+		"@health-checks": "health-checks",
+		"@helpers": "helpers",
+		"@middlewares": "middlewares",
+		"@public": "public",
+		"@routes": "routes",
+		"@services": "services",
+		"@requests": "requests",
+		"@database": "database"
+	}
+}
