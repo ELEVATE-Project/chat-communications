@@ -199,4 +199,34 @@ module.exports = class CommunicationHelper {
 			throw error
 		}
 	}
+
+	/**
+	 * Updates the name of a specific user on the chat platform.
+	 *
+	 * @param {string} userId - The ID of the user whose name needs to be updated.
+	 * @param {string} name - The new name for the user.
+	 * @returns {Promise<Object>} A promise that resolves to the response object containing status and result.
+	 * @throws {Error} If an error occurs during the update process.
+	 */
+	static async updateUser(userId, name) {
+		try {
+			const userDetails = await userQueries.findOne({ user_id: userId })
+			if (!userDetails) {
+				return responses.failureResponse({
+					message: apiResponses.USER_DOEST_NOT_EXIST,
+					statusCode: httpStatusCode.bad_request,
+					responseCode: 'CLIENT_ERROR',
+				})
+			}
+			await chatAPIs.updateUser(userDetails.user_info.external_user_id, name)
+			return responses.successResponse({
+				statusCode: httpStatusCode.ok,
+				message: 'NAME_UPDATED',
+				result: { success: true },
+			})
+		} catch (error) {
+			console.error('An error occurred:', error)
+			throw error
+		}
+	}
 }

@@ -37,4 +37,11 @@ module.exports = class Communication {
 			return error
 		}
 	}
+	async updateUser(req) {
+		try {
+			return await communicationService.updateUser(req.body.user_id, req.body.name)
+		} catch (error) {
+			return error
+		}
+	}
 }

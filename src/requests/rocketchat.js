@@ -55,6 +55,22 @@ exports.signup = async (name, username, password, email) => {
 	}
 }
 
+// Update user
+exports.updateUser = async (userId, name) => {
+	try {
+		const payload = {
+			userId,
+			data: { name },
+		}
+
+		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.USERS_UPDATE, payload)
+
+		return response.data
+	} catch (error) {
+		return handleError(error)
+	}
+}
+
 // Login function
 exports.login = async (username, password) => {
 	try {
@@ -137,7 +153,7 @@ exports.logoutOtherClients = async (userId, token) => {
 	}
 }
 
-// Send message function
+// Send message to a room and add to the senders DM list
 exports.sendMessage = async (username, password, rid, msg) => {
 	try {
 		const loginResponse = await this.login(username, password)
@@ -156,7 +172,16 @@ exports.sendMessage = async (username, password, rid, msg) => {
 					'X-User-Id': loginResponse.user_id,
 				},
 			})
-
+			await chatPlatformAxios.post(
+				apiEndpoints.ROCKETCHAT.IM_OPEN,
+				{ roomId: rid },
+				{
+					headers: {
+						'X-Auth-Token': loginResponse.auth_token,
+						'X-User-Id': loginResponse.user_id,
+					},
+				}
+			)
 			await this.logout(loginResponse.user_id, loginResponse.auth_token)
 
 			return response.data
