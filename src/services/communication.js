@@ -77,7 +77,6 @@ module.exports = class CommunicationHelper {
 	 */
 	static async login(bodyData) {
 		try {
-			console.log(usernameHash(bodyData.user_id), passwordHash(bodyData.user_id))
 			let chatResponse = await chatAPIs.login(usernameHash(bodyData.user_id), passwordHash(bodyData.user_id))
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
