@@ -1,14 +1,10 @@
 const validator = require('@middlewares/validator')
 const authenticator = require('@middlewares/authenticator')
-//const pagination = require('@middlewares/pagination')
-const expressValidator = require('express-validator')
 const fs = require('fs')
 const path = require('path')
 
 module.exports = (app) => {
 	app.use(authenticator)
-	//app.use(pagination)
-	//app.use(expressValidator())
 	async function getAllowedControllers(directoryPath) {
 		try {
 			const getAllFilesAndDirectories = (dir) => {
@@ -57,7 +53,6 @@ module.exports = (app) => {
 	}
 	async function router(req, res, next) {
 		let controllerResponse
-		let validationError
 
 		const version = (req.params.version.match(/^v\d+$/) || [])[0] // Match version like v1, v2, etc.
 		const controllerName = (req.params.controller.match(/^[a-zA-Z0-9_-]+$/) || [])[0] // Allow only alphanumeric characters, underscore, and hyphen
@@ -90,23 +85,6 @@ module.exports = (app) => {
 		} catch (error) {
 			return next(error)
 		}
-
-		/* Check for input validation error */
-		/* 		try {
-			validationError = req.validationErrors()
-		} catch (error) {
-			error.statusCode = 422
-			error.responseCode = 'CLIENT_ERROR'
-			return next(error)
-		}
-
-		if (validationError.length) {
-			const error = new Error('Validation failed, Entered data is incorrect!')
-			error.statusCode = 422
-			error.responseCode = 'CLIENT_ERROR'
-			error.data = validationError
-			return next(error)
-		} */
 
 		try {
 			let controller
