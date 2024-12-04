@@ -332,6 +332,8 @@ paths:
                     message: The user already exists in the system.
                     meta: {}
                     responseCode: SERVER_ERROR
+      tags:
+        - Communications
   /v1/communication/login:
     post:
       summary: Login
@@ -484,6 +486,8 @@ paths:
                     message: Unauthorized request
                     meta: {}
                     responseCode: UNAUTHORIZED
+      tags:
+        - Communications
   /v1/communication/logout:
     post:
       summary: Logout
@@ -700,6 +704,8 @@ paths:
                     message: The specified user does not exist.
                     meta: {}
                     responseCode: SERVER_ERROR
+      tags:
+        - Communications
   /v1/communication/createRoom:
     post:
       summary: Create Room
@@ -865,6 +871,8 @@ paths:
                     message: invalid-users
                     meta: {}
                     responseCode: CLIENT_ERROR
+      tags:
+        - Communications
   /v1/communication/updateAvatar:
     post:
       summary: Set Avatar
@@ -958,6 +966,8 @@ paths:
                     responseCode: OK
                     result:
                       success: true
+      tags:
+        - Communications
   /v1/communication/updateUser:
     post:
       summary: Update user
@@ -1050,6 +1060,8 @@ paths:
                     responseCode: OK
                     result:
                       success: true
+      tags:
+        - Communications
 components:
   securitySchemes:
     apiKey:
@@ -1058,4 +1070,9 @@ components:
       in: header
 security:
   - apiKey: []
-tags: []
+tags:
+  - name: Communications
+    description: Base APIs
+    externalDocs:
+      description: ''
+      url: ''
