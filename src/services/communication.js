@@ -40,10 +40,9 @@ module.exports = class CommunicationHelper {
 	static async signup(bodyData) {
 		const userExists = await userQueries.findOne({ user_id: bodyData.user_id })
 		if (userExists) {
-			return responses.successResponse({
-				statusCode: httpStatusCode.created,
+			return responses.failureResponse({
+				statusCode: httpStatusCode.conflict,
 				message: 'USER_ALREADY_EXISTS',
-				result: userExists,
 			})
 		}
 		let chatResponse = await chatAPIs.signup(
@@ -78,6 +77,7 @@ module.exports = class CommunicationHelper {
 	 */
 	static async login(bodyData) {
 		try {
+			console.log(usernameHash(bodyData.user_id), passwordHash(bodyData.user_id))
 			let chatResponse = await chatAPIs.login(usernameHash(bodyData.user_id), passwordHash(bodyData.user_id))
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
@@ -112,6 +112,13 @@ module.exports = class CommunicationHelper {
 			if (bodyData.token) {
 				chatResponse = await chatAPIs.logout(bodyData.user_id, bodyData.token)
 			} else {
+				const userExists = await userQueries.findOne({ user_id: bodyData.user_id })
+				if (!userExists) {
+					return responses.failureResponse({
+						statusCode: httpStatusCode.not_found,
+						message: 'USER_DOES_NOT_EXIST',
+					})
+				}
 				const loginResponse = await chatAPIs.login(
 					usernameHash(bodyData.user_id),
 					passwordHash(bodyData.user_id)
@@ -162,7 +169,7 @@ module.exports = class CommunicationHelper {
 			)
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
-				message: 'LOGGED_IN',
+				message: 'CHAT_ROOM_CREATED',
 				result: chatResponse,
 			})
 		} catch (error) {
