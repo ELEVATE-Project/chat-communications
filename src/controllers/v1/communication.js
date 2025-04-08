@@ -44,4 +44,11 @@ module.exports = class Communication {
 			return error
 		}
 	}
+	async userMapping(req) {
+		try {
+			return await communicationService.userMapping(req.body.external_user_id)
+		} catch (error) {
+			return error
+		}
+	}
 }

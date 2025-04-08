@@ -1,5 +1,6 @@
 'use strict'
 const User = require('@database/models/index').User
+const { Op, literal } = require('sequelize')
 
 exports.create = async (data) => {
 	try {
@@ -31,6 +32,38 @@ exports.update = async (filter, update, options = {}) => {
 		})
 
 		return res
+	} catch (error) {
+		throw error
+	}
+}
+
+exports.findUserWithJsonbFilter = async (filter, options = {}) => {
+	try {
+		const where = {}
+		const jsonbMappings = {
+			user_info_external_user_id: "user_info->>'external_user_id'",
+			// add more mappings as needed
+		}
+
+		const conditions = []
+
+		for (const key in filter) {
+			if (jsonbMappings[key]) {
+				conditions.push(literal(`${jsonbMappings[key]} = '${filter[key]}'`))
+			} else {
+				where[key] = filter[key]
+			}
+		}
+
+		if (conditions.length > 0) {
+			where[Op.and] = conditions
+		}
+
+		return await User.findOne({
+			where,
+			...options,
+			raw: true,
+		})
 	} catch (error) {
 		throw error
 	}
