@@ -1,0 +1,1078 @@
+openapi: 3.0.3
+info:
+  title: MentorED-Communications
+  description: >-
+    # MentorED-Communications API Documentation
+
+
+    The MentorED-Communications service acts as middleware between your
+    application and communication platforms (currently, only RocketChat is
+    supported). Below are the available features and their corresponding API
+    endpoints for interacting with the service.
+
+
+    ## Available Features
+
+
+    ### 1\. **User Signup**
+
+
+    This feature allows you to register a new user for the communication
+    platform. When you sign up a user, their details such as user ID, name, and
+    email are stored in the communication system, enabling them to interact with
+    the chat service.
+
+
+    - **Endpoint**: `POST /communications/v1/communication/signup`
+        
+    - **Description**: Registers a new user with their basic details.
+        
+    - **Required Fields**:
+        
+        - `user_id`: Unique identifier for the user (e.g., UUID).
+            
+        - `name`: The name of the user.
+            
+        - `email`: The user's email address.
+            
+
+    ### 2\. **User Login**
+
+
+    This feature allows an existing user to log into the communication service.
+    Upon login, the user is authenticated, and a session is established to
+    interact with the chat platform.
+
+
+    - **Endpoint**: `POST /communications/v1/communication/login`
+        
+    - **Description**: Logs a user into the communication system using their
+    unique user ID.
+        
+    - **Required Fields**:
+        
+        - `user_id`: The unique identifier for the user who is logging in.
+            
+
+    ### 3\. **User Logout**
+
+
+    The logout functionality allows users to log out from the communication
+    service. This will end the user's active session and disconnect them from
+    the chat platform.
+
+
+    - **Endpoint**: `POST /communications/v1/communication/logout`
+        
+    - **Description**: Logs the user out of the communication service.
+        
+    - **Required Fields**:
+        
+        - `user_id`: The unique identifier of the user who wishes to log out.
+            
+
+    ### 4\. **Create Communication Room**
+
+
+    This feature enables you to create a new communication room (chat group)
+    between two or more users. A room can be initialized with a welcome or
+    introductory message to start the conversation.
+
+
+    - **Endpoint**: `POST /communications/v1/communication/createRoom`
+        
+    - **Description**: Creates a new room for communication between specified
+    users.
+        
+    - **Required Fields**:
+        
+        - `usernames`: An array of user IDs who should be added to the room.
+            
+        - `initial_message`: A message that will be sent when the room is created (optional).
+            
+
+    ### 5\. **Update Avatar**
+
+
+    Users can update their profile picture (avatar) on the communication
+    platform using this feature. The new avatar is represented by an image URL.
+
+
+    - **Endpoint**: `POST /communications/v1/communication/updateAvatar`
+        
+    - **Description**: Updates the user's avatar with a new image URL.
+        
+    - **Required Fields**:
+        
+        - `user_id`: The unique identifier for the user whose avatar is being updated.
+            
+        - `image_url`: The URL of the new image to be used as the avatar.
+            
+
+    ### 6\. **Update User Information**
+
+
+    This feature allows you to update the personal details of an existing user.
+    This can include changes to the user's name or other profile information.
+
+
+    - **Endpoint**: `POST /communications/v1/communication/updateUser`
+        
+    - **Description**: Updates a user's details (e.g., their name) in the
+    communication service.
+        
+    - **Required Fields**:
+        
+        - `user_id`: The unique identifier of the user whose information is being updated.
+            
+        - `name`: The new name for the user.
+            
+
+    ## Authentication
+
+
+    To use these endpoints, an `internal_access_token` is required in the
+    request header. This token authenticates the user and ensures that only
+    authorized users can access the communication service.
+
+
+    ## To Use:
+
+
+    1. Replace any placeholders (like `user_id`, `name`, `image_url`, etc.) with
+    actual values based on your use case.
+        
+    2. Ensure the `internal_access_token` header is provided for authentication.
+        
+    3. You can use these features in combination to manage users, rooms, and
+    their profiles on the communication platform.
+        
+
+    ## Future Enhancements
+
+
+    - **Support for additional communication services**: Currently, the system
+    supports RocketChat, but there are plans to integrate other chat services in
+    the future.
+        
+    - **Advanced messaging features**: Future versions will support sending and
+    receiving messages, multimedia attachments, and message history.
+        
+
+    ---
+
+
+    ### Disclaimer:
+
+
+    The API endpoints described here are meant for internal communication
+    purposes and might evolve as more services are added. Be sure to keep an eye
+    on version updates to stay informed about any changes in the API or its
+    features.
+  version: 1.0.0
+  contact: {}
+servers:
+  - url: http://localhost:3123/communications
+paths:
+  /v1/communication/signup:
+    post:
+      summary: Signup
+      description: >-
+        This endpoint registers a new user with their unique identifier
+        (`user_id`), name, and email. It initializes the user’s profile in the
+        communication service, allowing them to use the platform for messaging
+        and other interactions.
+      operationId: signup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: johndoe@example.com
+                name:
+                  type: string
+                  example: John Doe
+                user_id:
+                  type: string
+                  example: 123e4567-e89b-12d3-a456-426614174000
+              required:
+                - email
+                - name
+                - user_id
+            examples:
+              Signup:
+                value:
+                  email: johndoe@example.com
+                  name: John Doe
+                  user_id: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '201':
+          description: 201 Created - User Created
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '120'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:16:45 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"78-4nIEFQCjGsZ7KcWgd4PrnUDiZfY"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User has been successfully created.
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: OK
+                  result:
+                    type: object
+                    properties:
+                      user_id:
+                        type: string
+                        example: GnrxwdtvTwQafKagQ
+              examples:
+                201 Created - User Created:
+                  value:
+                    message: User has been successfully created.
+                    meta: {}
+                    responseCode: OK
+                    result:
+                      user_id: GnrxwdtvTwQafKagQ
+        '409':
+          description: 409 Conflict - User Exists
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '103'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:26:16 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"67-+NtCnOyXErR2OR1egPJKZkdTOO0"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                    items: {}
+                    example: []
+                  message:
+                    type: string
+                    example: The user already exists in the system.
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: SERVER_ERROR
+              examples:
+                409 Conflict - User Exists:
+                  value:
+                    error: []
+                    message: The user already exists in the system.
+                    meta: {}
+                    responseCode: SERVER_ERROR
+      tags:
+        - Communications
+  /v1/communication/login:
+    post:
+      summary: Login
+      description: >-
+        This endpoint logs a user into the communication service using their
+        unique `user_id`. Upon successful login, the user can start interacting
+        with the chat platform. This session remains active until the user logs
+        out or the session expires.
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  example: 123e4567-e89b-12d3-a456-426614c174000
+              required:
+                - user_id
+            examples:
+              Login:
+                value:
+                  user_id: 123e4567-e89b-12d3-a456-426614c174000
+      responses:
+        '200':
+          description: 200 OK - Request Successful
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '176'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:31:59 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"b0-f/p9BDapZL3+qneQ9WZCUncW1Rc"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User has successfully logged in.
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: OK
+                  result:
+                    type: object
+                    properties:
+                      auth_token:
+                        type: string
+                        example: 2r1CXIEdtVlDbymeJVbWuHz3j-TI9aNkUa1JbkVneaw
+                      user_id:
+                        type: string
+                        example: GnrxwdtvTwQafKagQ
+              examples:
+                200 OK - Request Successful:
+                  value:
+                    message: User has successfully logged in.
+                    meta: {}
+                    responseCode: OK
+                    result:
+                      auth_token: 2r1CXIEdtVlDbymeJVbWuHz3j-TI9aNkUa1JbkVneaw
+                      user_id: GnrxwdtvTwQafKagQ
+        '401':
+          description: 401 Unauthorized - Invalid Credentials
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '85'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:34:39 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"55-bq9UPofo1odyXsLbE5GOzKUQvvU"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                    items: {}
+                    example: []
+                  message:
+                    type: string
+                    example: Unauthorized request
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: UNAUTHORIZED
+              examples:
+                401 Unauthorized - Invalid Credentials:
+                  value:
+                    error: []
+                    message: Unauthorized request
+                    meta: {}
+                    responseCode: UNAUTHORIZED
+      tags:
+        - Communications
+  /v1/communication/logout:
+    post:
+      summary: Logout
+      description: >-
+        This endpoint logs the user out of the communication service. It
+        invalidates the active session associated with the provided `user_id`,
+        effectively disconnecting the user from the chat platform and preventing
+        further interactions until they log in again.
+      operationId: logout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  example: 123e4567-e89b-12d3-a456-426614174000c
+              required:
+                - user_id
+            examples:
+              Logout:
+                value:
+                  user_id: 123e4567-e89b-12d3-a456-426614174000c
+      responses:
+        '200':
+          description: 200 OK - Request Successful
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '152'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:36:35 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"98-48uTvNHIaatSYWqyXePw+EdMh8Y"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User has successfully logged out.
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: OK
+                  result:
+                    type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          message:
+                            type: string
+                            example: You've been logged out!
+                      status:
+                        type: string
+                        example: success
+              examples:
+                200 OK - Request Successful:
+                  value:
+                    message: User has successfully logged out.
+                    meta: {}
+                    responseCode: OK
+                    result:
+                      data:
+                        message: You've been logged out!
+                      status: success
+        '401':
+          description: Logout
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '85'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:37:14 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"55-bq9UPofo1odyXsLbE5GOzKUQvvU"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                    items: {}
+                    example: []
+                  message:
+                    type: string
+                    example: Unauthorized request
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: UNAUTHORIZED
+              examples:
+                Logout:
+                  value:
+                    error: []
+                    message: Unauthorized request
+                    meta: {}
+                    responseCode: UNAUTHORIZED
+        '404':
+          description: 404 Not Found - User Not Found
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '99'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:39:25 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"63-hsTctVopqYZwqJjdgH0UxKUYzl8"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                    items: {}
+                    example: []
+                  message:
+                    type: string
+                    example: The specified user does not exist.
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: SERVER_ERROR
+              examples:
+                404 Not Found - User Not Found:
+                  value:
+                    error: []
+                    message: The specified user does not exist.
+                    meta: {}
+                    responseCode: SERVER_ERROR
+      tags:
+        - Communications
+  /v1/communication/createRoom:
+    post:
+      summary: Create Room
+      description: >-
+        This endpoint creates a new communication room (chat group) between
+        specified users, identified by their `usernames`. An initial message can
+        be sent to start the conversation in the newly created room. This
+        feature is ideal for setting up one-on-one or group chats in the
+        communication system.
+      operationId: createRoom
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                initial_message:
+                  type: string
+                  example: Hi, i would like to connect with you!
+                usernames:
+                  type: array
+                  items:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174001
+                  example:
+                    - 123e4567-e89b-12d3-a456-426614174001
+                    - 123e4567-e89b-12d3-a456-426614174003
+              required:
+                - usernames
+                - initial_message
+            examples:
+              Create Room:
+                value:
+                  initial_message: Hi, i would like to connect with you!
+                  usernames:
+                    - 123e4567-e89b-12d3-a456-426614174001
+                    - 123e4567-e89b-12d3-a456-426614174003
+      responses:
+        '200':
+          description: 200 OK - Request Successful
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '151'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:55:40 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"97-/0DH8JL1BxuUTEty756NTgyhd1w"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Chat room has been successfully updated.
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: OK
+                  result:
+                    type: object
+                    properties:
+                      room:
+                        type: object
+                        properties:
+                          room_id:
+                            type: string
+                            example: GnrxwdtvTwQafKagQxqwyRKLfPq7huvT6K
+              examples:
+                200 OK - Request Successful:
+                  value:
+                    message: Chat room has been successfully updated.
+                    meta: {}
+                    responseCode: OK
+                    result:
+                      room:
+                        room_id: GnrxwdtvTwQafKagQxqwyRKLfPq7huvT6K
+        '400':
+          description: 400 Bad Request
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '78'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:56:11 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"4e-5PpHgjWZVUEtohNZKPP43yC7eGI"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                    items: {}
+                    example: []
+                  message:
+                    type: string
+                    example: invalid-users
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: CLIENT_ERROR
+              examples:
+                400 Bad Request:
+                  value:
+                    error: []
+                    message: invalid-users
+                    meta: {}
+                    responseCode: CLIENT_ERROR
+      tags:
+        - Communications
+  /v1/communication/updateAvatar:
+    post:
+      summary: Set Avatar
+      description: >-
+        This endpoint allows a user to update their profile picture (avatar) by
+        providing a new image URL. It is useful for personalizing the user's
+        profile within the communication platform, ensuring the avatar image is
+        reflected across their interactions.
+      operationId: setAvatar
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image_url:
+                  type: string
+                  example: https://picsum.photos/200/200
+                user_id:
+                  type: string
+                  example: 123e4567-e89b-12d3-a456-426614174000
+              required:
+                - image_url
+                - user_id
+            examples:
+              Set Avatar:
+                value:
+                  image_url: https://picsum.photos/200/200
+                  user_id: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: 200 OK - Request Successful
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '114'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:57:25 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"72-ID4tJzG2GKkaUGtKUhq8Ui1dZKk"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Profile image has been updated successfully.
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: OK
+                  result:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+              examples:
+                200 OK - Request Successful:
+                  value:
+                    message: Profile image has been updated successfully.
+                    meta: {}
+                    responseCode: OK
+                    result:
+                      success: true
+      tags:
+        - Communications
+  /v1/communication/updateUser:
+    post:
+      summary: Update user
+      description: >-
+        This endpoint updates a user’s personal information, such as their name.
+        It enables the modification of a user's profile details to keep them
+        accurate and up-to-date in the communication system.
+      operationId: updateUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: John
+                user_id:
+                  type: string
+                  example: 123e4567-e89b-12d3-a456-426614174000
+              required:
+                - name
+                - user_id
+            examples:
+              Update user:
+                value:
+                  name: John
+                  user_id: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: 200 OK - Request Successful
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Content-Language:
+              schema:
+                type: string
+                example: en
+            Content-Length:
+              schema:
+                type: string
+                example: '113'
+            Date:
+              schema:
+                type: string
+                example: Wed, 04 Dec 2024 08:58:06 GMT
+            ETag:
+              schema:
+                type: string
+                example: W/"71-LgBVo91hr6UG/g93DebfNSoMkvs"
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User details has been successfully updated.
+                  meta:
+                    type: object
+                    properties: {}
+                  responseCode:
+                    type: string
+                    example: OK
+                  result:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+              examples:
+                200 OK - Request Successful:
+                  value:
+                    message: User details has been successfully updated.
+                    meta: {}
+                    responseCode: OK
+                    result:
+                      success: true
+      tags:
+        - Communications
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: internal_access_token
+      in: header
+security:
+  - apiKey: []
+tags:
+  - name: Communications
+    description: Base APIs
+    externalDocs:
+      description: ''
+      url: ''

@@ -1,18 +1,37 @@
-/**
- * name : middlewares/validator
- * author : Aman Kumar Gupta
- * Date : 01-Oct-2021
- * Description : Contains logic to call required validator from validators directory to validate request data
- */
+const { validationResult } = require('express-validator');
+const path = require('path');
 
-const fs = require('fs')
+module.exports = async (req, res, next) => {
+    try {
+        const version = req.params.version;
+        const controllerName = req.params.controller;
+        const method = req.params.method;
 
-module.exports = (req, res, next) => {
-	try {
-		const version = (req.params.version.match(/^v\d+$/) || [])[0] // Match version like v1, v2, etc.
-		const controllerName = (req.params.controller.match(/^[a-zA-Z0-9_-]+$/) || [])[0] // Allow only alphanumeric characters, underscore, and hyphen
-		const method = (req.params.method.match(/^[a-zA-Z0-9]+$/) || [])[0] // Allow only alphanumeric characters
-		require(`@validators/${version}/${controllerName}`)[method](req)
-	} catch (error) {}
-	next()
-}
+        // Dynamically load the validator for the given route
+        const validatorPath = path.resolve(__dirname, `../validators/${version}/${controllerName}.js`);
+        const validators = require(validatorPath);
+
+        // If the method has validators, execute them
+        if (validators[method]) {
+            await Promise.all(validators[method].map((validation) => validation.run(req)));
+        }
+
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({
+                responseCode: 'VALIDATION_ERROR',
+                message: 'Validation failed. Check input data.',
+                errors: errors.array(),
+            });
+        }
+
+        next();
+    } catch (error) {
+        // If no validator exists, continue without validation
+        if (error.code === 'MODULE_NOT_FOUND') {
+            return next();
+        }
+        next(error);
+    }
+};

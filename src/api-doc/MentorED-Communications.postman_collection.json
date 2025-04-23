@@ -1,0 +1,1096 @@
+{
+	"info": {
+		"_postman_id": "51debeb8-948d-4d90-97a6-622d6e844ddd",
+		"name": "MentorED-Communications",
+		"description": "# MentorED-Communications API Documentation\n\nThe MentorED-Communications service acts as middleware between your application and communication platforms (currently, only RocketChat is supported). Below are the available features and their corresponding API endpoints for interacting with the service.\n\n## Available Features\n\n### 1\\. **User Signup**\n\nThis feature allows you to register a new user for the communication platform. When you sign up a user, their details such as user ID, name, and email are stored in the communication system, enabling them to interact with the chat service.\n\n- **Endpoint**: `POST /communications/v1/communication/signup`\n    \n- **Description**: Registers a new user with their basic details.\n    \n- **Required Fields**:\n    \n    - `user_id`: Unique identifier for the user (e.g., UUID).\n        \n    - `name`: The name of the user.\n        \n    - `email`: The user's email address.\n        \n\n### 2\\. **User Login**\n\nThis feature allows an existing user to log into the communication service. Upon login, the user is authenticated, and a session is established to interact with the chat platform.\n\n- **Endpoint**: `POST /communications/v1/communication/login`\n    \n- **Description**: Logs a user into the communication system using their unique user ID.\n    \n- **Required Fields**:\n    \n    - `user_id`: The unique identifier for the user who is logging in.\n        \n\n### 3\\. **User Logout**\n\nThe logout functionality allows users to log out from the communication service. This will end the user's active session and disconnect them from the chat platform.\n\n- **Endpoint**: `POST /communications/v1/communication/logout`\n    \n- **Description**: Logs the user out of the communication service.\n    \n- **Required Fields**:\n    \n    - `user_id`: The unique identifier of the user who wishes to log out.\n        \n\n### 4\\. **Create Communication Room**\n\nThis feature enables you to create a new communication room (chat group) between two or more users. A room can be initialized with a welcome or introductory message to start the conversation.\n\n- **Endpoint**: `POST /communications/v1/communication/createRoom`\n    \n- **Description**: Creates a new room for communication between specified users.\n    \n- **Required Fields**:\n    \n    - `usernames`: An array of user IDs who should be added to the room.\n        \n    - `initial_message`: A message that will be sent when the room is created (optional).\n        \n\n### 5\\. **Update Avatar**\n\nUsers can update their profile picture (avatar) on the communication platform using this feature. The new avatar is represented by an image URL.\n\n- **Endpoint**: `POST /communications/v1/communication/updateAvatar`\n    \n- **Description**: Updates the user's avatar with a new image URL.\n    \n- **Required Fields**:\n    \n    - `user_id`: The unique identifier for the user whose avatar is being updated.\n        \n    - `image_url`: The URL of the new image to be used as the avatar.\n        \n\n### 6\\. **Update User Information**\n\nThis feature allows you to update the personal details of an existing user. This can include changes to the user's name or other profile information.\n\n- **Endpoint**: `POST /communications/v1/communication/updateUser`\n    \n- **Description**: Updates a user's details (e.g., their name) in the communication service.\n    \n- **Required Fields**:\n    \n    - `user_id`: The unique identifier of the user whose information is being updated.\n        \n    - `name`: The new name for the user.\n        \n\n## Authentication\n\nTo use these endpoints, an `internal_access_token` is required in the request header. This token authenticates the user and ensures that only authorized users can access the communication service.\n\n## To Use:\n\n1. Replace any placeholders (like `user_id`, `name`, `image_url`, etc.) with actual values based on your use case.\n    \n2. Ensure the `internal_access_token` header is provided for authentication.\n    \n3. You can use these features in combination to manage users, rooms, and their profiles on the communication platform.\n    \n\n## Future Enhancements\n\n- **Support for additional communication services**: Currently, the system supports RocketChat, but there are plans to integrate other chat services in the future.\n    \n- **Advanced messaging features**: Future versions will support sending and receiving messages, multimedia attachments, and message history.\n    \n\n---\n\n### Disclaimer:\n\nThe API endpoints described here are meant for internal communication purposes and might evolve as more services are added. Be sure to keep an eye on version updates to stay informed about any changes in the API or its features.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21498549"
+	},
+	"item": [
+		{
+			"name": "Signup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"name\": \"John Doe\",\n    \"email\": \"johndoe@example.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}communications/v1/communication/signup",
+					"host": [
+						"{{base_url}}communications"
+					],
+					"path": [
+						"v1",
+						"communication",
+						"signup"
+					]
+				},
+				"description": "This endpoint registers a new user with their unique identifier (`user_id`), name, and email. It initializes the user’s profile in the communication service, allowing them to use the platform for messaging and other interactions."
+			},
+			"response": [
+				{
+					"name": "201 Created - User Created",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"name\": \"John Doe\",\n    \"email\": \"johndoe@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/signup",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"signup"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "120"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"78-4nIEFQCjGsZ7KcWgd4PrnUDiZfY\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:16:45 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"OK\",\n    \"message\": \"User has been successfully created.\",\n    \"result\": {\n        \"user_id\": \"GnrxwdtvTwQafKagQ\"\n    },\n    \"meta\": {}\n}"
+				},
+				{
+					"name": "409 Conflict - User Exists",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"name\": \"John Doe\",\n    \"email\": \"johndoe@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/signup",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"signup"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "103"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"67-+NtCnOyXErR2OR1egPJKZkdTOO0\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:26:16 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"SERVER_ERROR\",\n    \"error\": [],\n    \"meta\": {},\n    \"message\": \"The user already exists in the system.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}communications/v1/communication/login",
+					"host": [
+						"{{base_url}}communications"
+					],
+					"path": [
+						"v1",
+						"communication",
+						"login"
+					]
+				},
+				"description": "This endpoint logs a user into the communication service using their unique `user_id`. Upon successful login, the user can start interacting with the chat platform. This session remains active until the user logs out or the session expires."
+			},
+			"response": [
+				{
+					"name": "200 OK - Request Successful",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/login",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"login"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "176"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"b0-f/p9BDapZL3+qneQ9WZCUncW1Rc\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:31:59 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"OK\",\n    \"message\": \"User has successfully logged in.\",\n    \"result\": {\n        \"user_id\": \"GnrxwdtvTwQafKagQ\",\n        \"auth_token\": \"2r1CXIEdtVlDbymeJVbWuHz3j-TI9aNkUa1JbkVneaw\"\n    },\n    \"meta\": {}\n}"
+				},
+				{
+					"name": "401 Unauthorized - Invalid Credentials",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614c174000\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/login",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"login"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "85"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"55-bq9UPofo1odyXsLbE5GOzKUQvvU\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:34:39 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"UNAUTHORIZED\",\n    \"error\": [],\n    \"meta\": {},\n    \"message\": \"Unauthorized request\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}communications/v1/communication/logout",
+					"host": [
+						"{{base_url}}communications"
+					],
+					"path": [
+						"v1",
+						"communication",
+						"logout"
+					]
+				},
+				"description": "This endpoint logs the user out of the communication service. It invalidates the active session associated with the provided `user_id`, effectively disconnecting the user from the chat platform and preventing further interactions until they log in again."
+			},
+			"response": [
+				{
+					"name": "200 OK - Request Successful",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/logout",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"logout"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "152"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"98-48uTvNHIaatSYWqyXePw+EdMh8Y\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:36:35 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"OK\",\n    \"message\": \"User has successfully logged out.\",\n    \"result\": {\n        \"status\": \"success\",\n        \"data\": {\n            \"message\": \"You've been logged out!\"\n        }\n    },\n    \"meta\": {}\n}"
+				},
+				{
+					"name": "Logout",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/logout",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"logout"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "85"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"55-bq9UPofo1odyXsLbE5GOzKUQvvU\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:37:14 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"UNAUTHORIZED\",\n    \"error\": [],\n    \"meta\": {},\n    \"message\": \"Unauthorized request\"\n}"
+				},
+				{
+					"name": "404 Not Found - User Not Found",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/logout",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"logout"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "99"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"63-hsTctVopqYZwqJjdgH0UxKUYzl8\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:39:25 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"SERVER_ERROR\",\n    \"error\": [],\n    \"meta\": {},\n    \"message\": \"The specified user does not exist.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Create Room",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"usernames\": [\n        \"8\",\n        \"1\"\n    ],\n    \"initial_message\": \"Hi, i would like to connect with you!\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}communications/v1/communication/createRoom",
+					"host": [
+						"{{base_url}}communications"
+					],
+					"path": [
+						"v1",
+						"communication",
+						"createRoom"
+					]
+				},
+				"description": "This endpoint creates a new communication room (chat group) between specified users, identified by their `usernames`. An initial message can be sent to start the conversation in the newly created room. This feature is ideal for setting up one-on-one or group chats in the communication system."
+			},
+			"response": [
+				{
+					"name": "200 OK - Request Successful",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usernames\": [\n        \"123e4567-e89b-12d3-a456-426614174001\",\n        \"123e4567-e89b-12d3-a456-426614174000\"\n    ],\n    \"initial_message\": \"Hi, i would like to connect with you!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/createRoom",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"createRoom"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "151"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"97-/0DH8JL1BxuUTEty756NTgyhd1w\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:55:40 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"OK\",\n    \"message\": \"Chat room has been successfully updated.\",\n    \"result\": {\n        \"room\": {\n            \"room_id\": \"GnrxwdtvTwQafKagQxqwyRKLfPq7huvT6K\"\n        }\n    },\n    \"meta\": {}\n}"
+				},
+				{
+					"name": "400 Bad Request",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usernames\": [\n        \"123e4567-e89b-12d3-a456-426614174001\",\n        \"123e4567-e89b-12d3-a456-426614174003\"\n    ],\n    \"initial_message\": \"Hi, i would like to connect with you!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/createRoom",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"createRoom"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "78"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"4e-5PpHgjWZVUEtohNZKPP43yC7eGI\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:56:11 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"CLIENT_ERROR\",\n    \"error\": [],\n    \"meta\": {},\n    \"message\": \"invalid-users\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Set Avatar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"image_url\": \"https://picsum.photos/200/200\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}communications/v1/communication/updateAvatar",
+					"host": [
+						"{{base_url}}communications"
+					],
+					"path": [
+						"v1",
+						"communication",
+						"updateAvatar"
+					]
+				},
+				"description": "This endpoint allows a user to update their profile picture (avatar) by providing a new image URL. It is useful for personalizing the user's profile within the communication platform, ensuring the avatar image is reflected across their interactions."
+			},
+			"response": [
+				{
+					"name": "200 OK - Request Successful",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"image_url\": \"https://picsum.photos/200/200\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/updateAvatar",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"updateAvatar"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "114"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"72-ID4tJzG2GKkaUGtKUhq8Ui1dZKk\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:57:25 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"OK\",\n    \"message\": \"Profile image has been updated successfully.\",\n    \"result\": {\n        \"success\": true\n    },\n    \"meta\": {}\n}"
+				}
+			]
+		},
+		{
+			"name": "Update user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"name\": \"Abel\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}communications/v1/communication/updateUser",
+					"host": [
+						"{{base_url}}communications"
+					],
+					"path": [
+						"v1",
+						"communication",
+						"updateUser"
+					]
+				},
+				"description": "This endpoint updates a user’s personal information, such as their name. It enables the modification of a user's profile details to keep them accurate and up-to-date in the communication system."
+			},
+			"response": [
+				{
+					"name": "200 OK - Request Successful",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"name\": \"John\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}communications/v1/communication/updateUser",
+							"host": [
+								"{{base_url}}communications"
+							],
+							"path": [
+								"v1",
+								"communication",
+								"updateUser"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "113"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"71-LgBVo91hr6UG/g93DebfNSoMkvs\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:58:06 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"OK\",\n    \"message\": \"User details has been successfully updated.\",\n    \"result\": {\n        \"success\": true\n    },\n    \"meta\": {}\n}"
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "internal_access_token",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "internal_access_token",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "http://localhost:3123/"
+		}
+	]
+}

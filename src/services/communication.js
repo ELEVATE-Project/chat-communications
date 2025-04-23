@@ -40,10 +40,9 @@ module.exports = class CommunicationHelper {
 	static async signup(bodyData) {
 		const userExists = await userQueries.findOne({ user_id: bodyData.user_id })
 		if (userExists) {
-			return responses.successResponse({
-				statusCode: httpStatusCode.created,
+			return responses.failureResponse({
+				statusCode: httpStatusCode.conflict,
 				message: 'USER_ALREADY_EXISTS',
-				result: userExists,
 			})
 		}
 		let chatResponse = await chatAPIs.signup(
@@ -112,6 +111,13 @@ module.exports = class CommunicationHelper {
 			if (bodyData.token) {
 				chatResponse = await chatAPIs.logout(bodyData.user_id, bodyData.token)
 			} else {
+				const userExists = await userQueries.findOne({ user_id: bodyData.user_id })
+				if (!userExists) {
+					return responses.failureResponse({
+						statusCode: httpStatusCode.not_found,
+						message: 'USER_DOES_NOT_EXIST',
+					})
+				}
 				const loginResponse = await chatAPIs.login(
 					usernameHash(bodyData.user_id),
 					passwordHash(bodyData.user_id)
@@ -162,7 +168,7 @@ module.exports = class CommunicationHelper {
 			)
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
-				message: 'LOGGED_IN',
+				message: 'CHAT_ROOM_CREATED',
 				result: chatResponse,
 			})
 		} catch (error) {
@@ -225,6 +231,46 @@ module.exports = class CommunicationHelper {
 				result: { success: true },
 			})
 		} catch (error) {
+			console.error('An error occurred:', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Retrieves user details based on the provided user ID and returns a mapped response.
+	 *
+	 * @param {string} userId - The external user ID to search for in the database.
+	 * @returns {Promise<Object>} A promise that resolves to a response object.
+	 * The response object will either contain user details or an error message,
+	 * depending on the result of the query.
+	 *
+	 * @throws {Error} If there is any error during the database query or response handling.
+	 */
+	static async userMapping(userId) {
+		try {
+			// Fetch user details based on external user ID
+			const userDetails = await userQueries.findUserWithJsonbFilter({ user_info_external_user_id: userId })
+
+			// If no user details are found, return a failure response
+			if (!userDetails) {
+				return responses.failureResponse({
+					message: apiResponses.USER_DOEST_NOT_EXIST,
+					statusCode: httpStatusCode.bad_request,
+					responseCode: 'CLIENT_ERROR',
+				})
+			}
+
+			// Return a success response with user details
+			return responses.successResponse({
+				statusCode: httpStatusCode.ok,
+				message: 'NAME_UPDATED',
+				result: {
+					user_id: userDetails.user_id,
+					external_user_id: userDetails.user_info.external_user_id,
+				},
+			})
+		} catch (error) {
+			// Log the error and throw it
 			console.error('An error occurred:', error)
 			throw error
 		}

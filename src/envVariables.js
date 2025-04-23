@@ -5,7 +5,8 @@ let tableData = new table()
 let environmentVariables = {
 	APPLICATION_ENV: {
 		message: 'Required node environment',
-		optional: false,
+		optional: true,
+		default: 'production',
 	},
 
 	APPLICATION_PORT: {
@@ -33,7 +34,8 @@ let environmentVariables = {
 
 	CHAT_PLATFORM: {
 		message: 'Chat platform name',
-		optional: false,
+		optional: true,
+		default: 'rocketchat',
 	},
 
 	CHAT_PLATFORM_URL: {
@@ -48,11 +50,15 @@ let environmentVariables = {
 
 	CHAT_PLATFORM_ADMIN_PASSWORD: {
 		message: 'Chat platform admin password',
-		optional: false,
+		optional: true,
 	},
 
 	CHAT_PLATFORM_ADMIN_USER_ID: {
 		message: 'Chat platform admin user ID',
+		optional: false,
+	},
+	CHAT_PLATFORM_ACCESS_TOKEN: {
+		message: 'Chat platform admin token',
 		optional: false,
 	},
 
