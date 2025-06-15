@@ -9,6 +9,7 @@ module.exports = class Communication {
 		}
 	}
 
+	
 	async login(req) {
 		try {
 			return await communicationService.login(req.body)
