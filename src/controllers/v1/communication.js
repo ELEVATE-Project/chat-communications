@@ -9,7 +9,6 @@ module.exports = class Communication {
 		}
 	}
 
-	
 	async login(req) {
 		try {
 			return await communicationService.login(req.body)
@@ -48,6 +47,17 @@ module.exports = class Communication {
 	async userMapping(req) {
 		try {
 			return await communicationService.userMapping(req.body.external_user_id)
+		} catch (error) {
+			return error
+		}
+	}
+	async setActiveStatus(req) {
+		try {
+			return await communicationService.setActiveStatus(
+				req.body.user_id,
+				req.body.activeStatus,
+				req.body.confirmRelinquish
+			)
 		} catch (error) {
 			return error
 		}

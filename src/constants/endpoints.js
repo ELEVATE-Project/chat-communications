@@ -9,5 +9,6 @@ module.exports = {
 		LOGOUT_OTHER_CLIENTS: '/api/v1/users.logoutOtherClients',
 		CHAT_SEND_MESSAGE: '/api/v1/chat.sendMessage',
 		USERS_SET_AVATAR: '/api/v1/users.setAvatar',
+		USERS_SET_ACTIVE_STATUS: '/api/v1/users.setActiveStatus',
 	},
 }
