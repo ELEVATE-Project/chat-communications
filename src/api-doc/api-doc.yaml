@@ -1062,6 +1062,105 @@ paths:
                       success: true
       tags:
         - Communications
+/v1/communication/setActiveStatus:
+  post:
+    summary: Set Active Status
+    description: >
+      This endpoint sets or updates the active status of a user in the communication system.
+      It can be used to indicate whether a user is currently active or inactive,
+      and whether they are relinquishing their session.
+    operationId: setActiveStatus
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: string
+                example: 123e4567-e89b-12d3-a456-426614174000
+              activeStatus:
+                type: boolean
+                example: true
+              confirmRelinquish:
+                type: boolean
+                example: true
+            required:
+              - user_id
+              - activeStatus
+              - confirmRelinquish
+          examples:
+            Set Active Status:
+              value:
+                user_id: 123e4567-e89b-12d3-a456-426614174000
+                activeStatus: true
+                confirmRelinquish: true
+    responses:
+      '200':
+        description: 200 OK - Active status updated successfully
+        headers:
+          Access-Control-Allow-Origin:
+            schema:
+              type: string
+              example: '*'
+          Connection:
+            schema:
+              type: string
+              example: keep-alive
+          Content-Language:
+            schema:
+              type: string
+              example: en
+          Content-Length:
+            schema:
+              type: string
+              example: '113'
+          Date:
+            schema:
+              type: string
+              example: Wed, 04 Dec 2024 09:20:00 GMT
+          ETag:
+            schema:
+              type: string
+              example: W/"71-LgBVo91hr6UG/g93DebfNSoMkvs"
+          Keep-Alive:
+            schema:
+              type: string
+              example: timeout=5
+          X-Powered-By:
+            schema:
+              type: string
+              example: Express
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: User active status has been successfully updated.
+                meta:
+                  type: object
+                  properties: {}
+                responseCode:
+                  type: string
+                  example: OK
+                result:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      example: true
+            examples:
+              200 OK - Active status updated:
+                value:
+                  message: User active status has been successfully updated.
+                  meta: {}
+                  responseCode: OK
+                  result:
+                    success: true
+      tags:
+        - Communications
 components:
   securitySchemes:
     apiKey:

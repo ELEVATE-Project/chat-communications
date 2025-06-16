@@ -1046,6 +1046,101 @@
 					"body": "{\n    \"responseCode\": \"OK\",\n    \"message\": \"User details has been successfully updated.\",\n    \"result\": {\n        \"success\": true\n    },\n    \"meta\": {}\n}"
 				}
 			]
+		},
+		{
+			"name": "Set Status Active",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"activeStatus\": true,\n    \"confirmRelinquish\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{base_url}}communications/v1/communication/setActiveStatus",
+				"description": "This endpoint updates a user’s personal information, such as their name. It enables the modification of a user's profile details to keep them accurate and up-to-date in the communication system."
+			},
+			"response": [
+				{
+					"name": "200 OK - Request Successful",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"name\": \"John\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}communications/v1/communication/updateUser"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "113"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"71-LgBVo91hr6UG/g93DebfNSoMkvs\""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 04 Dec 2024 08:58:06 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"responseCode\": \"OK\",\n    \"message\": \"User details has been successfully updated.\",\n    \"result\": {\n        \"success\": true\n    },\n    \"meta\": {}\n}"
+				}
+			]
 		}
 	],
 	"auth": {
