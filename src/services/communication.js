@@ -275,4 +275,41 @@ module.exports = class CommunicationHelper {
 			throw error
 		}
 	}
+
+	/**
+	 * Updates the active status of a user on the chat platform (e.g., Rocket.Chat)
+	 * using their external user ID, which is retrieved from the database using the provided internal user ID.
+	 *
+	 * @async
+	 * @function setActiveStatus
+	 * @param {string} userId - The internal user ID used to look up user details in the database.
+	 * @param {boolean} activeStatus - Indicates whether the user should be activated (`true`) or deactivated (`false`).
+	 * @param {boolean} confirmRelinquish - Required when deactivating a user; confirms termination of all other sessions.
+	 * @returns {Promise<Object>} A response object indicating success or failure.
+	 * - On success: `{ statusCode: 200, message: 'STATUS_UPDATED', result: { success: true } }`
+	 * - On failure (user not found): returns a 400 response with an appropriate error message.
+	 *
+	 * @throws {Error} If any error occurs during user lookup or API communication.
+	 */
+	static async setActiveStatus(userId, activeStatus, confirmRelinquish) {
+		try {
+			const userDetails = await userQueries.findOne({ user_id: userId })
+			if (!userDetails) {
+				return responses.failureResponse({
+					message: apiResponses.USER_DOEST_NOT_EXIST,
+					statusCode: httpStatusCode.bad_request,
+					responseCode: 'CLIENT_ERROR',
+				})
+			}
+			await chatAPIs.setActiveStatus(activeStatus, userDetails.user_info.external_user_id, confirmRelinquish)
+			return responses.successResponse({
+				statusCode: httpStatusCode.ok,
+				message: 'STATUS_UPDATED',
+				result: { success: true },
+			})
+		} catch (error) {
+			console.error('An error occurred:', error)
+			throw error
+		}
+	}
 }

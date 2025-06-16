@@ -217,3 +217,19 @@ exports.setAvatar = async (username, imageUrl) => {
 		return handleError(error)
 	}
 }
+
+exports.setActiveStatus = async (activeStatus, userId, confirmRelinquish = true) => {
+	try {
+		const payload = {
+			activeStatus,
+			userId,
+			confirmRelinquish,
+		}
+
+		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.USERS_SET_ACTIVE_STATUS, payload)
+
+		return response.data
+	} catch (error) {
+		return handleError(error)
+	}
+}
