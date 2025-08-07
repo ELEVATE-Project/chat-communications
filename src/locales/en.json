@@ -9,5 +9,6 @@
 	"CLIENT_ERROR": "An error occurred with the client request.",
 	"NAME_UPDATED": "User details has been successfully updated.",
 	"CHAT_ROOM_CREATED": "Chat room has been successfully updated.",
-	"STATUS_UPDATED": "User Status has been successfully Updated."
+	"STATUS_UPDATED": "User Status has been successfully Updated.",
+	"IMAGE_RESET": "Profile image reseted successfully."
 }

@@ -10,5 +10,6 @@ module.exports = {
 		CHAT_SEND_MESSAGE: '/api/v1/chat.sendMessage',
 		USERS_SET_AVATAR: '/api/v1/users.setAvatar',
 		USERS_SET_ACTIVE_STATUS: '/api/v1/users.setActiveStatus',
+		USERS_RESET_AVATAR: '/api/v1/users.resetAvatar',
 	},
 }
