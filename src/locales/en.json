@@ -10,5 +10,5 @@
 	"NAME_UPDATED": "User details has been successfully updated.",
 	"CHAT_ROOM_CREATED": "Chat room has been successfully updated.",
 	"STATUS_UPDATED": "User Status has been successfully Updated.",
-	"IMAGE_RESET": "Profile image reset successfully."
+    "IMAGE_RESET": "Profile image reset successfully"
 }
