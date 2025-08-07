@@ -312,4 +312,32 @@ module.exports = class CommunicationHelper {
 			throw error
 		}
 	}
+
+	/**
+	 * Remove the avatar image for a specific user on the chat platform.
+	 * @param {string} userId - The user ID whose avatar needs updating.
+	 * @returns {Promise<Object>} Response with status and avatar image reset result.
+	 */
+	static async removeAvatar(userId) {
+		try {
+			const userDetails = await userQueries.findOne({ user_id: userId })
+			if (!userDetails) {
+				return responses.failureResponse({
+					message: apiResponses.USER_DOEST_NOT_EXIST,
+					statusCode: httpStatusCode.bad_request,
+					responseCode: 'CLIENT_ERROR',
+				})
+			}
+
+			let chatResponse = await chatAPIs.resetAvatar(usernameHash(userId))
+			return responses.successResponse({
+				statusCode: httpStatusCode.ok,
+				message: 'IMAGE_RESET',
+				result: chatResponse,
+			})
+		} catch (error) {
+			console.error('An error occurred:', error)
+			throw error
+		}
+	}
 }
