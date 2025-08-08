@@ -237,14 +237,11 @@ exports.setActiveStatus = async (activeStatus, userId, confirmRelinquish = true)
 // reset avatar function
 exports.resetAvatar = async (username) => {
 	try {
-		const form = new FormData()
-		form.append('username', username)
+		const payload = {
+			username
+		}
 
-		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.USERS_RESET_AVATAR, form, {
-			headers: {
-				'Content-Type': 'multipart/form-data',
-			},
-		})
+		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.USERS_RESET_AVATAR,payload)
 		return response.data
 	} catch (error) {
 		return handleError(error)
