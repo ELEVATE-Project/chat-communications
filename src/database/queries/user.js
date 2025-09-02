@@ -2,8 +2,9 @@
 const User = require('@database/models/index').User
 const { Op, literal } = require('sequelize')
 
-exports.create = async (data) => {
+exports.create = async (data, tenantCode) => {
 	try {
+		data.tenant_code = tenantCode
 		const user = await User.create(data)
 		return user.get({ plain: true })
 	} catch (error) {
@@ -11,8 +12,9 @@ exports.create = async (data) => {
 	}
 }
 
-exports.findOne = async (filter, options = {}) => {
+exports.findOne = async (filter, tenantCode, options = {}) => {
 	try {
+		filter.tenant_code = tenantCode
 		return await User.findOne({
 			where: filter,
 			...options,
@@ -23,8 +25,9 @@ exports.findOne = async (filter, options = {}) => {
 	}
 }
 
-exports.update = async (filter, update, options = {}) => {
+exports.update = async (filter, update, tenantCode, options = {}) => {
 	try {
+		filter.tenant_code = tenantCode
 		const [res] = await User.update(update, {
 			where: filter,
 			...options,
@@ -37,7 +40,7 @@ exports.update = async (filter, update, options = {}) => {
 	}
 }
 
-exports.findUserWithJsonbFilter = async (filter, options = {}) => {
+exports.findUserWithJsonbFilter = async (filter, tenantCode, options = {}) => {
 	try {
 		const where = {}
 		const jsonbMappings = {
@@ -54,6 +57,8 @@ exports.findUserWithJsonbFilter = async (filter, options = {}) => {
 				where[key] = filter[key]
 			}
 		}
+
+		where.tenant_code = tenantCode
 
 		if (conditions.length > 0) {
 			where[Op.and] = conditions

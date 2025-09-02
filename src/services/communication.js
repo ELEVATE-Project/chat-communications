@@ -37,8 +37,8 @@ module.exports = class CommunicationHelper {
 	 * @param {string} [bodyData.image_url] - Optional URL for the user's avatar image.
 	 * @returns {Promise<Object>} Response with status and chat signup result.
 	 */
-	static async signup(bodyData) {
-		const userExists = await userQueries.findOne({ user_id: bodyData.user_id })
+	static async signup(bodyData, tenantCode) {
+		const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
 		if (userExists) {
 			return responses.failureResponse({
 				statusCode: httpStatusCode.conflict,
@@ -51,12 +51,15 @@ module.exports = class CommunicationHelper {
 			passwordHash(bodyData.user_id),
 			bodyData.email
 		)
-		await userQueries.create({
-			user_id: bodyData.user_id,
-			user_info: {
-				external_user_id: chatResponse.user_id,
+		await userQueries.create(
+			{
+				user_id: bodyData.user_id,
+				user_info: {
+					external_user_id: chatResponse.user_id,
+				},
 			},
-		})
+			tenantCode
+		)
 
 		if (bodyData.image_url) {
 			await chatAPIs.setAvatar(usernameHash(bodyData.user_id), bodyData.image_url)
@@ -105,13 +108,13 @@ module.exports = class CommunicationHelper {
 	 * @param {string} [bodyData.token] - The auth token for logout; if not provided, all sessions are logged out.
 	 * @returns {Promise<Object>} Response with status and logout result.
 	 */
-	static async logout(bodyData) {
+	static async logout(bodyData, tenantCode) {
 		try {
 			let chatResponse
 			if (bodyData.token) {
 				chatResponse = await chatAPIs.logout(bodyData.user_id, bodyData.token)
 			} else {
-				const userExists = await userQueries.findOne({ user_id: bodyData.user_id })
+				const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
 				if (!userExists) {
 					return responses.failureResponse({
 						statusCode: httpStatusCode.not_found,
@@ -214,9 +217,9 @@ module.exports = class CommunicationHelper {
 	 * @returns {Promise<Object>} A promise that resolves to the response object containing status and result.
 	 * @throws {Error} If an error occurs during the update process.
 	 */
-	static async updateUser(userId, name) {
+	static async updateUser(userId, name, tenantCode) {
 		try {
-			const userDetails = await userQueries.findOne({ user_id: userId })
+			const userDetails = await userQueries.findOne({ user_id: userId }, tenantCode)
 			if (!userDetails) {
 				return responses.failureResponse({
 					message: apiResponses.USER_DOEST_NOT_EXIST,
@@ -246,10 +249,13 @@ module.exports = class CommunicationHelper {
 	 *
 	 * @throws {Error} If there is any error during the database query or response handling.
 	 */
-	static async userMapping(userId) {
+	static async userMapping(userId, tenantCode) {
 		try {
 			// Fetch user details based on external user ID
-			const userDetails = await userQueries.findUserWithJsonbFilter({ user_info_external_user_id: userId })
+			const userDetails = await userQueries.findUserWithJsonbFilter(
+				{ user_info_external_user_id: userId },
+				tenantCode
+			)
 
 			// If no user details are found, return a failure response
 			if (!userDetails) {
@@ -291,9 +297,9 @@ module.exports = class CommunicationHelper {
 	 *
 	 * @throws {Error} If any error occurs during user lookup or API communication.
 	 */
-	static async setActiveStatus(userId, activeStatus, confirmRelinquish) {
+	static async setActiveStatus(userId, activeStatus, confirmRelinquish, tenantCode) {
 		try {
-			const userDetails = await userQueries.findOne({ user_id: userId })
+			const userDetails = await userQueries.findOne({ user_id: userId }, tenantCode)
 			if (!userDetails) {
 				return responses.failureResponse({
 					message: apiResponses.USER_DOEST_NOT_EXIST,
@@ -318,9 +324,9 @@ module.exports = class CommunicationHelper {
 	 * @param {string} userId - The user ID whose avatar needs updating.
 	 * @returns {Promise<Object>} Response with status and avatar image reset result.
 	 */
-	static async removeAvatar(userId) {
+	static async removeAvatar(userId, tenantCode) {
 		try {
-			const userDetails = await userQueries.findOne({ user_id: userId })
+			const userDetails = await userQueries.findOne({ user_id: userId }, tenantCode)
 			if (!userDetails) {
 				return responses.failureResponse({
 					message: apiResponses.USER_DOEST_NOT_EXIST,
