@@ -38,7 +38,7 @@ module.exports = class CommunicationHelper {
 	 * @returns {Promise<Object>} Response with status and chat signup result.
 	 */
 	static async signup(bodyData, tenantCode) {
-		bodyData.tenant_code ? delete Body.tenant_code : bodyData
+		bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
 		const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
 		if (userExists) {
 			return responses.failureResponse({
@@ -81,7 +81,7 @@ module.exports = class CommunicationHelper {
 	 */
 	static async login(bodyData) {
 		try {
-			bodyData.tenant_code ? delete Body.tenant_code : bodyData
+			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
 			let chatResponse = await chatAPIs.login(usernameHash(bodyData.user_id), passwordHash(bodyData.user_id))
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
@@ -112,7 +112,7 @@ module.exports = class CommunicationHelper {
 	 */
 	static async logout(bodyData, tenantCode) {
 		try {
-			bodyData.tenant_code ? delete Body.tenant_code : bodyData
+			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
 			let chatResponse
 			if (bodyData.token) {
 				chatResponse = await chatAPIs.logout(bodyData.user_id, bodyData.token)
@@ -160,7 +160,7 @@ module.exports = class CommunicationHelper {
 	 */
 	static async createRoom(bodyData) {
 		try {
-			bodyData.tenant_code ? delete Body.tenant_code : bodyData
+			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
 			const userA = usernameHash(bodyData.usernames[0])
 			const userB = usernameHash(bodyData.usernames[1])
 			let users = [userA, userB]
