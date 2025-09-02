@@ -13,8 +13,8 @@ module.exports = class Communication {
 	 */
 	async signup(req) {
 		try {
-			const tenantCode = req.tenantCode
-			return await communicationService.signup(req.body, tenantCode)
+			const { tenant_code, ...bodyData } = req.body
+			return await communicationService.signup(bodyData, tenant_code)
 		} catch (error) {
 			return error
 		}
@@ -33,8 +33,8 @@ module.exports = class Communication {
 
 	async login(req) {
 		try {
-			const tenantCode = req.tenantCode
-			return await communicationService.login(req.body)
+			const { tenant_code, ...bodyData } = req.body
+			return await communicationService.login(bodyData, tenant_code)
 		} catch (error) {
 			return error
 		}
@@ -52,8 +52,8 @@ module.exports = class Communication {
 	 */
 	async logout(req) {
 		try {
-			const tenantCode = req.tenantCode
-			return await communicationService.logout(req.body, tenantCode)
+			const { tenant_code, ...bodyData } = req.body
+			return await communicationService.logout(bodyData, tenant_code)
 		} catch (error) {
 			return error
 		}
@@ -71,8 +71,8 @@ module.exports = class Communication {
 	 */
 	async createRoom(req) {
 		try {
-			const tenantCode = req.tenantCode
-			return await communicationService.createRoom(req.body)
+			const { tenant_code, ...bodyData } = req.body
+			return await communicationService.createRoom(bodyData, tenant_code)
 		} catch (error) {
 			return error
 		}
@@ -90,7 +90,8 @@ module.exports = class Communication {
 	 */
 	async updateAvatar(req) {
 		try {
-			return await communicationService.updateAvatar(req.body.user_id, req.body.image_url)
+			const { tenant_code, user_id, image_url } = req.body
+			return await communicationService.updateAvatar(user_id, image_url, tenant_code)
 		} catch (error) {
 			return error
 		}
@@ -108,8 +109,8 @@ module.exports = class Communication {
 	 */
 	async updateUser(req) {
 		try {
-			const tenantCode = req.tenantCode
-			return await communicationService.updateUser(req.body.user_id, req.body.name, tenantCode)
+			const { tenant_code, user_id, name } = req.body
+			return await communicationService.updateUser(user_id, name, tenant_code)
 		} catch (error) {
 			return error
 		}
@@ -127,8 +128,8 @@ module.exports = class Communication {
 	 */
 	async userMapping(req) {
 		try {
-			const tenantCode = req.tenantCode
-			return await communicationService.userMapping(req.body.external_user_id, tenantCode)
+			const { tenant_code, external_user_id } = req.body
+			return await communicationService.userMapping(external_user_id, tenant_code)
 		} catch (error) {
 			return error
 		}
@@ -149,13 +150,8 @@ module.exports = class Communication {
 	 */
 	async setActiveStatus(req) {
 		try {
-			const tenantCode = req.tenantCode
-			return await communicationService.setActiveStatus(
-				req.body.user_id,
-				req.body.activeStatus,
-				req.body.confirmRelinquish,
-				tenantCode
-			)
+			const { tenant_code, user_id, activeStatus, confirmRelinquish } = req.body
+			return await communicationService.setActiveStatus(user_id, activeStatus, confirmRelinquish, tenant_code)
 		} catch (error) {
 			return error
 		}
@@ -176,8 +172,8 @@ module.exports = class Communication {
 	 */
 	async removeAvatar(req) {
 		try {
-			const tenantCode = req.tenantCode
-			return await communicationService.removeAvatar(req.body.user_id, tenantCode)
+			const { tenant_code, user_id } = req.body
+			return await communicationService.removeAvatar(user_id, tenant_code)
 		} catch (error) {
 			return error
 		}
