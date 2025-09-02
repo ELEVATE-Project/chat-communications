@@ -22,7 +22,6 @@ const apiResponses = require('@constants/api-responses')
 const responses = require('@helpers/responses')
 const { usernameHash, passwordHash } = require('@generics/utils')
 const userQueries = require('../database/queries/user')
-const communication = require('validators/v1/communication')
 
 /**
  * Helper class for handling communication-related operations with Rocket.Chat API.
