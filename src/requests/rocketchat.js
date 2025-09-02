@@ -11,14 +11,6 @@ const chatPlatformAxios = axios.create({
 	},
 })
 
-// Debug: Log RocketChat configuration
-console.log('=== RocketChat Configuration Debug ===')
-console.log('CHAT_PLATFORM_URL:', process.env.CHAT_PLATFORM_URL)
-console.log('CHAT_PLATFORM_ADMIN_USER_ID:', process.env.CHAT_PLATFORM_ADMIN_USER_ID)
-console.log('CHAT_PLATFORM_ACCESS_TOKEN exists:', !!process.env.CHAT_PLATFORM_ACCESS_TOKEN)
-console.log('CHAT_PLATFORM_ACCESS_TOKEN length:', process.env.CHAT_PLATFORM_ACCESS_TOKEN?.length)
-console.log('=======================================')
-
 const buildSignupPayload = (name, username, password, email) => ({
 	name,
 	username,
@@ -54,29 +46,11 @@ exports.signup = async (name, username, password, email) => {
 	try {
 		const payload = buildSignupPayload(name, username, password, email)
 
-		console.log('=== RocketChat Signup Request Debug ===')
-		console.log('Endpoint:', apiEndpoints.ROCKETCHAT.USERS_CREATE)
-		console.log('Payload:', payload)
-		console.log('Headers:', {
-			'X-Auth-Token': process.env.CHAT_PLATFORM_ACCESS_TOKEN ? 'SET' : 'MISSING',
-			'X-User-Id': process.env.CHAT_PLATFORM_ADMIN_USER_ID || 'MISSING',
-		})
-		console.log('Full URL:', process.env.CHAT_PLATFORM_URL + apiEndpoints.ROCKETCHAT.USERS_CREATE)
-
 		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.USERS_CREATE, payload)
-
-		console.log('=== RocketChat Signup Success ===')
-		console.log('Response status:', response.status)
-		console.log('User created:', response.data.user._id)
-
 		return {
 			user_id: response.data.user._id,
 		}
 	} catch (error) {
-		console.log('=== RocketChat Signup Error ===')
-		console.log('Error status:', error.response?.status)
-		console.log('Error data:', error.response?.data)
-		console.log('Error headers:', error.response?.headers)
 		return handleError(error)
 	}
 }
@@ -101,29 +75,13 @@ exports.updateUser = async (userId, name) => {
 exports.login = async (username, password) => {
 	try {
 		const payload = { user: username, password }
-
-		console.log('=== RocketChat Login Request Debug ===')
-		console.log('Endpoint:', apiEndpoints.ROCKETCHAT.LOGIN)
-		console.log('Username:', username)
-		console.log('Password length:', password?.length)
-		console.log('Full URL:', process.env.CHAT_PLATFORM_URL + apiEndpoints.ROCKETCHAT.LOGIN)
-
 		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.LOGIN, payload)
-
-		console.log('=== RocketChat Login Success ===')
-		console.log('Response status:', response.status)
-		console.log('User ID:', response.data.data.userId)
-		console.log('Auth token exists:', !!response.data.data.authToken)
 
 		return {
 			user_id: response.data.data.userId,
 			auth_token: response.data.data.authToken,
 		}
 	} catch (error) {
-		console.log('=== RocketChat Login Error ===')
-		console.log('Error status:', error.response?.status)
-		console.log('Error data:', error.response?.data)
-		console.log('Error message:', error.message)
 		return handleError(error)
 	}
 }
