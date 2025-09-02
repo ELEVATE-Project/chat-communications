@@ -80,9 +80,14 @@ module.exports = class CommunicationHelper {
 	 * @param {string} bodyData.user_id - The user ID.
 	 * @returns {Promise<Object>} Response with status and login result.
 	 */
-	static async login(bodyData) {
+	static async login(bodyData, tenantCode) {
 		try {
+			// Remove tenant_code from bodyData before sending to Rocket.Chat
 			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
+
+			// Use tenantCode for internal database operations if needed
+			// await userQueries.updateUserActivity(bodyData.user_id, tenantCode)
+
 			let chatResponse = await chatAPIs.login(usernameHash(bodyData.user_id), passwordHash(bodyData.user_id))
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
@@ -159,8 +164,11 @@ module.exports = class CommunicationHelper {
 	 * @param {string} bodyData.initial_message - The initial message to send in the chat room.
 	 * @returns {Promise<Object>} Response with status and room creation result.
 	 */
-	static async createRoom(bodyData) {
+	static async createRoom(bodyData, tenantCode) {
 		try {
+			// Remove tenant_code from bodyData before processing
+			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
+
 			const userA = usernameHash(bodyData.usernames[0])
 			const userB = usernameHash(bodyData.usernames[1])
 			let users = [userA, userB]
@@ -199,8 +207,11 @@ module.exports = class CommunicationHelper {
 	 * @param {string} imageUrl - The URL of the new avatar image.
 	 * @returns {Promise<Object>} Response with status and avatar update result.
 	 */
-	static async updateAvatar(userId, imageUrl) {
+	static async updateAvatar(userId, imageUrl, tenantCode) {
 		try {
+			// Use tenantCode for internal operations if needed
+			// await userQueries.updateUserActivity(userId, tenantCode)
+
 			let chatResponse = await chatAPIs.setAvatar(usernameHash(userId), imageUrl)
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
