@@ -81,6 +81,7 @@ module.exports = class CommunicationHelper {
 	 */
 	static async login(bodyData) {
 		try {
+			bodyData.tenant_code ? delete Body.tenant_code : bodyData
 			let chatResponse = await chatAPIs.login(usernameHash(bodyData.user_id), passwordHash(bodyData.user_id))
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
