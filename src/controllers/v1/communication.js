@@ -13,7 +13,7 @@ module.exports = class Communication {
 	 */
 	async signup(req) {
 		try {
-			const tenantCode = req.body.tenant_code || req.decodedToken?.tenant_code
+			const tenantCode = req.tenantCode
 			return await communicationService.signup(req.body, tenantCode)
 		} catch (error) {
 			return error
@@ -33,6 +33,7 @@ module.exports = class Communication {
 
 	async login(req) {
 		try {
+			const tenantCode = req.tenantCode
 			return await communicationService.login(req.body)
 		} catch (error) {
 			return error
@@ -51,7 +52,7 @@ module.exports = class Communication {
 	 */
 	async logout(req) {
 		try {
-			const tenantCode = req.body.tenant_code || req.decodedToken?.tenant_code
+			const tenantCode = req.tenantCode
 			return await communicationService.logout(req.body, tenantCode)
 		} catch (error) {
 			return error
@@ -70,6 +71,7 @@ module.exports = class Communication {
 	 */
 	async createRoom(req) {
 		try {
+			const tenantCode = req.tenantCode
 			return await communicationService.createRoom(req.body)
 		} catch (error) {
 			return error
@@ -106,7 +108,7 @@ module.exports = class Communication {
 	 */
 	async updateUser(req) {
 		try {
-			const tenantCode = req.body.tenant_code || req.decodedToken?.tenant_code
+			const tenantCode = req.tenantCode
 			return await communicationService.updateUser(req.body.user_id, req.body.name, tenantCode)
 		} catch (error) {
 			return error
@@ -125,7 +127,7 @@ module.exports = class Communication {
 	 */
 	async userMapping(req) {
 		try {
-			const tenantCode = req.body.tenant_code || req.decodedToken?.tenant_code
+			const tenantCode = req.tenantCode
 			return await communicationService.userMapping(req.body.external_user_id, tenantCode)
 		} catch (error) {
 			return error
@@ -147,7 +149,7 @@ module.exports = class Communication {
 	 */
 	async setActiveStatus(req) {
 		try {
-			const tenantCode = req.body.tenant_code || req.decodedToken?.tenant_code
+			const tenantCode = req.tenantCode
 			return await communicationService.setActiveStatus(
 				req.body.user_id,
 				req.body.activeStatus,
@@ -174,7 +176,7 @@ module.exports = class Communication {
 	 */
 	async removeAvatar(req) {
 		try {
-			const tenantCode = req.body.tenant_code || req.decodedToken?.tenant_code
+			const tenantCode = req.tenantCode
 			return await communicationService.removeAvatar(req.body.user_id, tenantCode)
 		} catch (error) {
 			return error

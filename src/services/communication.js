@@ -22,6 +22,7 @@ const apiResponses = require('@constants/api-responses')
 const responses = require('@helpers/responses')
 const { usernameHash, passwordHash } = require('@generics/utils')
 const userQueries = require('../database/queries/user')
+const communication = require('validators/v1/communication')
 
 /**
  * Helper class for handling communication-related operations with Rocket.Chat API.
@@ -160,7 +161,6 @@ module.exports = class CommunicationHelper {
 	 */
 	static async createRoom(bodyData) {
 		try {
-			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
 			const userA = usernameHash(bodyData.usernames[0])
 			const userB = usernameHash(bodyData.usernames[1])
 			let users = [userA, userB]
