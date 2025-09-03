@@ -122,13 +122,38 @@ module.exports = class CommunicationHelper {
 	 */
 	static async login(bodyData, tenantCode) {
 		try {
+			console.log('=== Communication Service Login Debug ===')
+			console.log('Input bodyData:', bodyData)
+			console.log('tenantCode:', tenantCode)
+
 			// Remove tenant_code from bodyData before sending to Rocket.Chat
 			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
+			console.log('Clean bodyData (after removing tenant_code):', bodyData)
+
+			// Check if user exists in local database first
+			const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
+			console.log('User exists in communications DB:', !!userExists)
+
+			if (!userExists) {
+				console.log('User not found in communications database - cannot login without signup')
+				return responses.failureResponse({
+					statusCode: httpStatusCode.bad_request,
+					message: 'USER_NOT_FOUND_PLEASE_SIGNUP_FIRST',
+					responseCode: 'CLIENT_ERROR',
+				})
+			}
 
 			// Use tenantCode for internal database operations if needed
-			// await userQueries.updateUserActivity(bodyData.user_id, tenantCode)
+			// await userQueries.updateUserActivity(bodyData.user_id, tenantCode) // Method doesn't exist
 
-			let chatResponse = await chatAPIs.login(usernameHash(bodyData.user_id), passwordHash(bodyData.user_id))
+			const hashedUsername = usernameHash(bodyData.user_id)
+			const hashedPassword = passwordHash(bodyData.user_id)
+
+			console.log('User exists in DB, calling RocketChat login with:')
+			console.log('- hashedUsername:', hashedUsername)
+			console.log('- hashedPassword length:', hashedPassword?.length)
+
+			let chatResponse = await chatAPIs.login(hashedUsername, hashedPassword)
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
 				message: 'LOGGED_IN',
