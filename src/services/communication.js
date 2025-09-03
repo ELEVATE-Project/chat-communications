@@ -38,38 +38,79 @@ module.exports = class CommunicationHelper {
 	 * @returns {Promise<Object>} Response with status and chat signup result.
 	 */
 	static async signup(bodyData, tenantCode) {
-		bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
-		const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
-		if (userExists) {
+		try {
+			console.log('=== Communication Service Signup Debug ===')
+			console.log('Input bodyData:', bodyData)
+			console.log('tenantCode:', tenantCode)
+
+			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
+			console.log('Clean bodyData (after removing tenant_code):', bodyData)
+
+			const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
+			console.log('User exists in communications DB:', !!userExists)
+
+			if (userExists) {
+				console.log('User already exists in communications DB, attempting login instead of signup')
+				// Auto-login instead of returning error
+				return await this.login(bodyData, tenantCode)
+			}
+
+			console.log('User does not exist, proceeding with RocketChat signup')
+
+			const hashedUsername = usernameHash(bodyData.user_id)
+			const hashedPassword = passwordHash(bodyData.user_id)
+
+			console.log('Calling RocketChat signup with:')
+			console.log('- name:', bodyData.name)
+			console.log('- hashedUsername:', hashedUsername)
+			console.log('- hashedPassword length:', hashedPassword?.length)
+			console.log('- email:', bodyData.email)
+
+			let chatResponse = await chatAPIs.signup(bodyData.name, hashedUsername, hashedPassword, bodyData.email)
+
+			await userQueries.create(
+				{
+					user_id: bodyData.user_id,
+					user_info: {
+						external_user_id: chatResponse.user_id,
+					},
+				},
+				tenantCode
+			)
+
+			if (bodyData.image_url) {
+				await chatAPIs.setAvatar(usernameHash(bodyData.user_id), bodyData.image_url)
+			}
+			return responses.successResponse({
+				statusCode: httpStatusCode.created,
+				message: 'USER_CREATED_SUCCESSFULLY',
+				result: chatResponse,
+			})
+		} catch (error) {
+			console.error('Signup error:', error)
+			// Handle specific RocketChat errors
+			if (error.message === 'unauthorized') {
+				return responses.failureResponse({
+					statusCode: httpStatusCode.unauthorized,
+					message: 'ROCKETCHAT_AUTHENTICATION_FAILED',
+					responseCode: 'SERVER_ERROR',
+				})
+			}
+			// Handle email already exists error
+			if (error.message && error.message.includes('already in use')) {
+				return responses.failureResponse({
+					statusCode: httpStatusCode.conflict,
+					message: 'EMAIL_ALREADY_EXISTS_IN_ROCKETCHAT',
+					responseCode: 'CLIENT_ERROR',
+				})
+			}
+			// Handle other RocketChat errors
 			return responses.failureResponse({
-				statusCode: httpStatusCode.conflict,
-				message: 'USER_ALREADY_EXISTS',
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'SIGNUP_FAILED',
+				responseCode: 'SERVER_ERROR',
 			})
 		}
-		let chatResponse = await chatAPIs.signup(
-			bodyData.name,
-			usernameHash(bodyData.user_id),
-			passwordHash(bodyData.user_id),
-			bodyData.email
-		)
-		await userQueries.create(
-			{
-				user_id: bodyData.user_id,
-				user_info: {
-					external_user_id: chatResponse.user_id,
-				},
-			},
-			tenantCode
-		)
-
-		if (bodyData.image_url) {
-			await chatAPIs.setAvatar(usernameHash(bodyData.user_id), bodyData.image_url)
-		}
-		return responses.successResponse({
-			statusCode: httpStatusCode.created,
-			message: 'USER_CREATED_SUCCESSFULLY',
-			result: chatResponse,
-		})
 	}
 
 	/**
