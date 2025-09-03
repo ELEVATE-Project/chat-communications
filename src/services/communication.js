@@ -154,6 +154,7 @@ module.exports = class CommunicationHelper {
 			console.log('- hashedPassword length:', hashedPassword?.length)
 
 			let chatResponse = await chatAPIs.login(hashedUsername, hashedPassword)
+			console.log('RocketChat login response received:', !!chatResponse)
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
 				message: 'LOGGED_IN',
