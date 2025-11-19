@@ -95,6 +95,27 @@ async function run() {
 
 	await updatePermissions([{ _id: 'view-outside-room', roles: ['admin'] }], 'Update Permissions')
 
+	await saveSettings(
+		'50',
+		[
+			{ _id: 'API_Enable_CORS', value: true },
+			{ _id: 'API_CORS_Origin', value: '*' }, // OR your domain
+		],
+		'Enable CORS'
+	)
+
+	await saveSettings(
+        '65', // Use a unique ID like '60'
+        [
+            { _id: 'API_Enable_Rate_Limiter', value: true },
+            { _id: 'API_Enable_Rate_Limiter_Limit_Calls_Default', value: 100 }, 
+            { _id: 'API_Enable_Rate_Limiter_Limit_Time_Default', value: 60000 }, 
+        ],
+        'Configure API Rate Limiter'
+    )
+	
+
+	
 	console.log(' Configuration completed.')
 }
 
