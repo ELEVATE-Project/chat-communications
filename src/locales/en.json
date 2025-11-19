@@ -1,0 +1,14 @@
+{
+	"USER_ALREADY_EXISTS": "The user already exists in the system.",
+	"USER_CREATED_SUCCESSFULLY": "User has been successfully created.",
+	"LOGGED_IN": "User has successfully logged in.",
+	"UNAUTHORIZED_REQUEST": "You are not authorized to perform this action.",
+	"LOGGED_OUT": "User has successfully logged out.",
+	"USER_DOES_NOT_EXIST": "The specified user does not exist.",
+	"IMAGE_SET": "Profile image has been updated successfully.",
+	"CLIENT_ERROR": "An error occurred with the client request.",
+	"NAME_UPDATED": "User details has been successfully updated.",
+	"CHAT_ROOM_CREATED": "Chat room has been successfully updated.",
+	"STATUS_UPDATED": "User Status has been successfully Updated.",
+    "IMAGE_RESET": "Profile image reset successfully"
+}
