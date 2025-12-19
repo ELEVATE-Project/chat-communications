@@ -15,12 +15,7 @@ module.exports = class Communication {
 		try {
 			return await communicationService.signup(req.body)
 		} catch (error) {
-			console.error('Controller signup error:', error)
-			return responses.failureResponse({
-				statusCode: httpStatusCode.internal_server_error,
-				message: 'SIGNUP_FAILED',
-				responseCode: 'SERVER_ERROR',
-			})
+			return error
 		}
 	}
 
@@ -36,12 +31,7 @@ module.exports = class Communication {
 		try {
 			return await communicationService.login(req.body)
 		} catch (error) {
-			console.error('Controller login error:', error)
-			return responses.failureResponse({
-				statusCode: httpStatusCode.internal_server_error,
-				message: 'LOGIN_FAILED',
-				responseCode: 'SERVER_ERROR',
-			})
+			return error
 		}
 	}
 
@@ -59,12 +49,7 @@ module.exports = class Communication {
 		try {
 			return await communicationService.logout(req.body)
 		} catch (error) {
-			console.error('Controller logout error:', error)
-			return responses.failureResponse({
-				statusCode: httpStatusCode.internal_server_error,
-				message: 'LOGOUT_FAILED',
-				responseCode: 'SERVER_ERROR',
-			})
+			return error
 		}
 	}
 
@@ -82,12 +67,7 @@ module.exports = class Communication {
 		try {
 			return await communicationService.createRoom(req.body)
 		} catch (error) {
-			console.error('Controller createRoom error:', error)
-			return responses.failureResponse({
-				statusCode: httpStatusCode.internal_server_error,
-				message: 'ROOM_CREATION_FAILED',
-				responseCode: 'SERVER_ERROR',
-			})
+			return error
 		}
 	}
 
@@ -105,12 +85,7 @@ module.exports = class Communication {
 		try {
 			return await communicationService.updateAvatar(req.body)
 		} catch (error) {
-			console.error('Controller error:', error)
-			return responses.failureResponse({
-				statusCode: httpStatusCode.internal_server_error,
-				message: 'OPERATION_FAILED',
-				responseCode: 'SERVER_ERROR',
-			})
+			return error
 		}
 	}
 
@@ -128,12 +103,7 @@ module.exports = class Communication {
 		try {
 			return await communicationService.updateUser(req.body)
 		} catch (error) {
-			console.error('Controller error:', error)
-			return responses.failureResponse({
-				statusCode: httpStatusCode.internal_server_error,
-				message: 'OPERATION_FAILED',
-				responseCode: 'SERVER_ERROR',
-			})
+			return error
 		}
 	}
 
@@ -151,12 +121,7 @@ module.exports = class Communication {
 		try {
 			return await communicationService.userMapping(req.body)
 		} catch (error) {
-			console.error('Controller error:', error)
-			return responses.failureResponse({
-				statusCode: httpStatusCode.internal_server_error,
-				message: 'OPERATION_FAILED',
-				responseCode: 'SERVER_ERROR',
-			})
+			return error
 		}
 	}
 
@@ -177,12 +142,7 @@ module.exports = class Communication {
 		try {
 			return await communicationService.setActiveStatus(req.body)
 		} catch (error) {
-			console.error('Controller error:', error)
-			return responses.failureResponse({
-				statusCode: httpStatusCode.internal_server_error,
-				message: 'OPERATION_FAILED',
-				responseCode: 'SERVER_ERROR',
-			})
+			return error
 		}
 	}
 
@@ -203,12 +163,7 @@ module.exports = class Communication {
 		try {
 			return await communicationService.removeAvatar(req.body)
 		} catch (error) {
-			console.error('Controller error:', error)
-			return responses.failureResponse({
-				statusCode: httpStatusCode.internal_server_error,
-				message: 'OPERATION_FAILED',
-				responseCode: 'SERVER_ERROR',
-			})
+			return error
 		}
 	}
 }
