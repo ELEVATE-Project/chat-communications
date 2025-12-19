@@ -24,50 +24,39 @@ const { usernameHash, passwordHash } = require('@generics/utils')
 const userQueries = require('../database/queries/user')
 
 /**
- * Helper class for handling communication-related operations with Rocket.Chat API.
+ * Helper class for handling communication-related operations with chat platform API.
  */
 module.exports = class CommunicationHelper {
 	/**
 	 * Registers a new user in the chat platform and stores user details in the database.
 	 *
-	 * @param {Object} bodyData - The user data.
+	 * @param {Object} bodyData - The user data including tenant_code.
 	 * @param {string} bodyData.user_id - The user ID.
 	 * @param {string} bodyData.name - The user's name.
 	 * @param {string} bodyData.email - The user's email address.
+	 * @param {string} bodyData.tenant_code - The tenant code.
 	 * @param {string} [bodyData.image_url] - Optional URL for the user's avatar image.
 	 * @returns {Promise<Object>} Response with status and chat signup result.
 	 */
-	static async signup(bodyData, tenantCode) {
+	static async signup(bodyData) {
+		const tenantCode = bodyData.tenant_code
+		delete bodyData.tenant_code
+
+		const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
+		if (userExists) {
+			return responses.failureResponse({
+				statusCode: httpStatusCode.conflict,
+				message: 'USER_ALREADY_EXISTS',
+			})
+		}
+
 		try {
-			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
-
-			const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
-
-			if (userExists) {
-				// Auto-login instead of returning error
-				return await this.login(bodyData, tenantCode)
-			}
-
-			const hashedUsername = usernameHash(bodyData.user_id)
-			const hashedPassword = passwordHash(bodyData.user_id)
-
-			let chatResponse
-			try {
-				chatResponse = await chatAPIs.signup(bodyData.name, hashedUsername, hashedPassword, bodyData.email)
-			} catch (rocketchatError) {
-				// Fallback: Create a mock response when RocketChat fails
-				chatResponse = {
-					user_id: `fallback_${hashedUsername}_${Date.now()}`,
-				}
-			}
-
-			// Check if chatResponse has the expected structure
-			if (!chatResponse || !chatResponse.user_id) {
-				// Fallback: Create a mock response
-				chatResponse = {
-					user_id: `fallback_${hashedUsername}_${Date.now()}`,
-				}
-			}
+			let chatResponse = await chatAPIs.signup(
+				bodyData.name,
+				usernameHash(bodyData.user_id),
+				passwordHash(bodyData.user_id),
+				bodyData.email
+			)
 
 			await userQueries.create(
 				{
@@ -82,30 +71,13 @@ module.exports = class CommunicationHelper {
 			if (bodyData.image_url) {
 				await chatAPIs.setAvatar(usernameHash(bodyData.user_id), bodyData.image_url)
 			}
+
 			return responses.successResponse({
 				statusCode: httpStatusCode.created,
 				message: 'USER_CREATED_SUCCESSFULLY',
 				result: chatResponse,
 			})
 		} catch (error) {
-			console.error('Signup error:', error)
-			// Handle specific RocketChat errors
-			if (error.message === 'unauthorized') {
-				return responses.failureResponse({
-					statusCode: httpStatusCode.unauthorized,
-					message: 'ROCKETCHAT_AUTHENTICATION_FAILED',
-					responseCode: 'SERVER_ERROR',
-				})
-			}
-			// Handle email already exists error
-			if (error.message && error.message.includes('already in use')) {
-				return responses.failureResponse({
-					statusCode: httpStatusCode.conflict,
-					message: 'EMAIL_ALREADY_EXISTS_IN_ROCKETCHAT',
-					responseCode: 'CLIENT_ERROR',
-				})
-			}
-			// Handle other RocketChat errors
 			return responses.failureResponse({
 				statusCode: httpStatusCode.internal_server_error,
 				message: 'SIGNUP_FAILED',
@@ -117,42 +89,32 @@ module.exports = class CommunicationHelper {
 	/**
 	 * Logs in an existing user to the chat platform.
 	 *
-	 * @param {Object} bodyData - The login data.
+	 * @param {Object} bodyData - The login data including tenant_code.
 	 * @param {string} bodyData.user_id - The user ID.
+	 * @param {string} bodyData.tenant_code - The tenant code.
 	 * @returns {Promise<Object>} Response with status and login result.
 	 */
-	static async login(bodyData, tenantCode) {
+	static async login(bodyData) {
+		const tenantCode = bodyData.tenant_code
+		delete bodyData.tenant_code
+
+		// Check if user exists in local database first
+		const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
+
+		if (!userExists) {
+			return responses.failureResponse({
+				statusCode: httpStatusCode.bad_request,
+				message: 'USER_NOT_FOUND_PLEASE_SIGNUP_FIRST',
+				responseCode: 'CLIENT_ERROR',
+			})
+		}
+
+		const hashedUsername = usernameHash(bodyData.user_id)
+		const hashedPassword = passwordHash(bodyData.user_id)
+
 		try {
-			// Remove tenant_code from bodyData before sending to Rocket.Chat
-			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
+			let chatResponse = await chatAPIs.login(hashedUsername, hashedPassword)
 
-			// Check if user exists in local database first
-			const userExists = await userQueries.findOne({ user_id: bodyData.user_id }, tenantCode)
-
-			if (!userExists) {
-				return responses.failureResponse({
-					statusCode: httpStatusCode.bad_request,
-					message: 'USER_NOT_FOUND_PLEASE_SIGNUP_FIRST',
-					responseCode: 'CLIENT_ERROR',
-				})
-			}
-
-			// Use tenantCode for internal database operations if needed
-			// await userQueries.updateUserActivity(bodyData.user_id, tenantCode) // Method doesn't exist
-
-			const hashedUsername = usernameHash(bodyData.user_id)
-			const hashedPassword = passwordHash(bodyData.user_id)
-
-			let chatResponse
-			try {
-				chatResponse = await chatAPIs.login(hashedUsername, hashedPassword)
-			} catch (rocketchatError) {
-				// Use fallback response since RocketChat is unavailable
-				chatResponse = {
-					user_id: `fallback_${hashedUsername}_${Date.now()}`,
-					auth_token: `fallback_token_${hashedUsername}_${Date.now()}`,
-				}
-			}
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
 				message: 'LOGGED_IN',
@@ -165,24 +127,29 @@ module.exports = class CommunicationHelper {
 					statusCode: httpStatusCode.unauthorized,
 					responseCode: 'UNAUTHORIZED',
 				})
-			} else {
-				console.error('An error occurred:', error.message)
-				throw error
 			}
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'LOGIN_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
 	/**
 	 * Logs out a user from the chat platform. Logs out all active sessions if no token is provided.
 	 *
-	 * @param {Object} bodyData - The logout data.
+	 * @param {Object} bodyData - The logout data including tenant_code.
 	 * @param {string} bodyData.user_id - The user ID.
+	 * @param {string} bodyData.tenant_code - The tenant code.
 	 * @param {string} [bodyData.token] - The auth token for logout; if not provided, all sessions are logged out.
 	 * @returns {Promise<Object>} Response with status and logout result.
 	 */
-	static async logout(bodyData, tenantCode) {
+	static async logout(bodyData) {
+		const tenantCode = bodyData.tenant_code
+		delete bodyData.tenant_code
+
 		try {
-			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
 			let chatResponse
 			if (bodyData.token) {
 				chatResponse = await chatAPIs.logout(bodyData.user_id, bodyData.token)
@@ -213,26 +180,29 @@ module.exports = class CommunicationHelper {
 					statusCode: httpStatusCode.unauthorized,
 					responseCode: 'UNAUTHORIZED',
 				})
-			} else {
-				console.error('An error occurred:', error.message)
-				throw error
 			}
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'LOGOUT_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
 	/**
 	 * Creates a chat room between two users and sends an initial message.
 	 *
-	 * @param {Object} bodyData - The room creation data.
+	 * @param {Object} bodyData - The room creation data including tenant_code.
+	 * @param {string} bodyData.tenant_code - The tenant code.
 	 * @param {string[]} bodyData.usernames - Array with two usernames to add to the chat room.
 	 * @param {string} bodyData.initial_message - The initial message to send in the chat room.
 	 * @returns {Promise<Object>} Response with status and room creation result.
 	 */
-	static async createRoom(bodyData, tenantCode) {
-		try {
-			// Remove tenant_code from bodyData before processing
-			bodyData.tenant_code ? delete bodyData.tenant_code : bodyData
+	static async createRoom(bodyData) {
+		const tenantCode = bodyData.tenant_code
+		delete bodyData.tenant_code
 
+		try {
 			const userA = usernameHash(bodyData.usernames[0])
 			const userB = usernameHash(bodyData.usernames[1])
 			let users = [userA, userB]
@@ -257,25 +227,31 @@ module.exports = class CommunicationHelper {
 					statusCode: httpStatusCode.bad_request,
 					responseCode: 'CLIENT_ERROR',
 				})
-			} else {
-				console.error('An error occurred:', error)
-				throw error
 			}
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'ROOM_CREATION_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
 	/**
 	 * Updates the avatar image for a specific user on the chat platform.
 	 *
-	 * @param {string} userId - The user ID whose avatar needs updating.
-	 * @param {string} imageUrl - The URL of the new avatar image.
+	 * @param {Object} bodyData - The avatar update data including tenant_code.
+	 * @param {string} bodyData.user_id - The user ID whose avatar needs updating.
+	 * @param {string} bodyData.image_url - The URL of the new avatar image.
+	 * @param {string} bodyData.tenant_code - The tenant code.
 	 * @returns {Promise<Object>} Response with status and avatar update result.
 	 */
-	static async updateAvatar(userId, imageUrl, tenantCode) {
-		try {
-			// Use tenantCode for internal operations if needed
-			// await userQueries.updateUserActivity(userId, tenantCode)
+	static async updateAvatar(bodyData) {
+		const tenantCode = bodyData.tenant_code
+		const userId = bodyData.user_id
+		const imageUrl = bodyData.image_url
+		delete bodyData.tenant_code
 
+		try {
 			let chatResponse = await chatAPIs.setAvatar(usernameHash(userId), imageUrl)
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
@@ -283,29 +259,38 @@ module.exports = class CommunicationHelper {
 				result: chatResponse,
 			})
 		} catch (error) {
-			console.error('An error occurred:', error)
-			throw error
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'AVATAR_UPDATE_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
 	/**
 	 * Updates the name of a specific user on the chat platform.
 	 *
-	 * @param {string} userId - The ID of the user whose name needs to be updated.
-	 * @param {string} name - The new name for the user.
+	 * @param {Object} bodyData - The user update data including tenant_code.
+	 * @param {string} bodyData.user_id - The ID of the user whose name needs to be updated.
+	 * @param {string} bodyData.name - The new name for the user.
+	 * @param {string} bodyData.tenant_code - The tenant code.
 	 * @returns {Promise<Object>} A promise that resolves to the response object containing status and result.
-	 * @throws {Error} If an error occurs during the update process.
 	 */
-	static async updateUser(userId, name, tenantCode) {
+	static async updateUser(bodyData) {
+		const tenantCode = bodyData.tenant_code
+		const userId = bodyData.user_id
+		const name = bodyData.name
+		delete bodyData.tenant_code
+
+		const userDetails = await userQueries.findOne({ user_id: userId }, tenantCode)
+		if (!userDetails) {
+			return responses.failureResponse({
+				message: apiResponses.USER_DOEST_NOT_EXIST,
+				statusCode: httpStatusCode.bad_request,
+				responseCode: 'CLIENT_ERROR',
+			})
+		}
 		try {
-			const userDetails = await userQueries.findOne({ user_id: userId }, tenantCode)
-			if (!userDetails) {
-				return responses.failureResponse({
-					message: apiResponses.USER_DOEST_NOT_EXIST,
-					statusCode: httpStatusCode.bad_request,
-					responseCode: 'CLIENT_ERROR',
-				})
-			}
 			await chatAPIs.updateUser(userDetails.user_info.external_user_id, name)
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
@@ -313,26 +298,31 @@ module.exports = class CommunicationHelper {
 				result: { success: true },
 			})
 		} catch (error) {
-			console.error('An error occurred:', error)
-			throw error
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'USER_UPDATE_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
 	/**
 	 * Retrieves user details based on the provided user ID and returns a mapped response.
 	 *
-	 * @param {string} userId - The external user ID to search for in the database.
+	 * @param {Object} bodyData - The user mapping data including tenant_code.
+	 * @param {string} bodyData.external_user_id - The external user ID to search for in the database.
+	 * @param {string} bodyData.tenant_code - The tenant code.
 	 * @returns {Promise<Object>} A promise that resolves to a response object.
-	 * The response object will either contain user details or an error message,
-	 * depending on the result of the query.
-	 *
-	 * @throws {Error} If there is any error during the database query or response handling.
 	 */
-	static async userMapping(userId, tenantCode) {
+	static async userMapping(bodyData) {
+		const tenantCode = bodyData.tenant_code
+		const externalUserId = bodyData.external_user_id
+		delete bodyData.tenant_code
+
 		try {
 			// Fetch user details based on external user ID
 			const userDetails = await userQueries.findUserWithJsonbFilter(
-				{ user_info_external_user_id: userId },
+				{ user_info_external_user_id: externalUserId },
 				tenantCode
 			)
 
@@ -355,37 +345,40 @@ module.exports = class CommunicationHelper {
 				},
 			})
 		} catch (error) {
-			// Log the error and throw it
-			console.error('An error occurred:', error)
-			throw error
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'USER_MAPPING_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
 	/**
-	 * Updates the active status of a user on the chat platform (e.g., Rocket.Chat)
-	 * using their external user ID, which is retrieved from the database using the provided internal user ID.
+	 * Updates the active status of a user on the chat platform.
 	 *
-	 * @async
-	 * @function setActiveStatus
-	 * @param {string} userId - The internal user ID used to look up user details in the database.
-	 * @param {boolean} activeStatus - Indicates whether the user should be activated (`true`) or deactivated (`false`).
-	 * @param {boolean} confirmRelinquish - Required when deactivating a user; confirms termination of all other sessions.
+	 * @param {Object} bodyData - The status update data including tenant_code.
+	 * @param {string} bodyData.user_id - The internal user ID used to look up user details in the database.
+	 * @param {boolean} bodyData.activeStatus - Indicates whether the user should be activated (`true`) or deactivated (`false`).
+	 * @param {boolean} bodyData.confirmRelinquish - Required when deactivating a user; confirms termination of all other sessions.
+	 * @param {string} bodyData.tenant_code - The tenant code.
 	 * @returns {Promise<Object>} A response object indicating success or failure.
-	 * - On success: `{ statusCode: 200, message: 'STATUS_UPDATED', result: { success: true } }`
-	 * - On failure (user not found): returns a 400 response with an appropriate error message.
-	 *
-	 * @throws {Error} If any error occurs during user lookup or API communication.
 	 */
-	static async setActiveStatus(userId, activeStatus, confirmRelinquish, tenantCode) {
+	static async setActiveStatus(bodyData) {
+		const tenantCode = bodyData.tenant_code
+		const userId = bodyData.user_id
+		const activeStatus = bodyData.activeStatus
+		const confirmRelinquish = bodyData.confirmRelinquish
+		delete bodyData.tenant_code
+
+		const userDetails = await userQueries.findOne({ user_id: userId }, tenantCode)
+		if (!userDetails) {
+			return responses.failureResponse({
+				message: apiResponses.USER_DOEST_NOT_EXIST,
+				statusCode: httpStatusCode.bad_request,
+				responseCode: 'CLIENT_ERROR',
+			})
+		}
 		try {
-			const userDetails = await userQueries.findOne({ user_id: userId }, tenantCode)
-			if (!userDetails) {
-				return responses.failureResponse({
-					message: apiResponses.USER_DOEST_NOT_EXIST,
-					statusCode: httpStatusCode.bad_request,
-					responseCode: 'CLIENT_ERROR',
-				})
-			}
 			await chatAPIs.setActiveStatus(activeStatus, userDetails.user_info.external_user_id, confirmRelinquish)
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
@@ -393,27 +386,37 @@ module.exports = class CommunicationHelper {
 				result: { success: true },
 			})
 		} catch (error) {
-			console.error('An error occurred:', error)
-			throw error
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'STATUS_UPDATE_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
 	/**
 	 * Remove the avatar image for a specific user on the chat platform.
-	 * @param {string} userId - The user ID whose avatar needs updating.
+	 *
+	 * @param {Object} bodyData - The avatar removal data including tenant_code.
+	 * @param {string} bodyData.user_id - The user ID whose avatar needs removing.
+	 * @param {string} bodyData.tenant_code - The tenant code.
 	 * @returns {Promise<Object>} Response with status and avatar image reset result.
 	 */
-	static async removeAvatar(userId, tenantCode) {
-		try {
-			const userDetails = await userQueries.findOne({ user_id: userId }, tenantCode)
-			if (!userDetails) {
-				return responses.failureResponse({
-					message: apiResponses.USER_DOEST_NOT_EXIST,
-					statusCode: httpStatusCode.bad_request,
-					responseCode: 'CLIENT_ERROR',
-				})
-			}
+	static async removeAvatar(bodyData) {
+		const tenantCode = bodyData.tenant_code
+		const userId = bodyData.user_id
+		delete bodyData.tenant_code
 
+		const userDetails = await userQueries.findOne({ user_id: userId }, tenantCode)
+		if (!userDetails) {
+			return responses.failureResponse({
+				message: apiResponses.USER_DOEST_NOT_EXIST,
+				statusCode: httpStatusCode.bad_request,
+				responseCode: 'CLIENT_ERROR',
+			})
+		}
+
+		try {
 			let chatResponse = await chatAPIs.resetAvatar(usernameHash(userId))
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
@@ -421,8 +424,11 @@ module.exports = class CommunicationHelper {
 				result: chatResponse,
 			})
 		} catch (error) {
-			console.error('An error occurred:', error)
-			throw error
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'AVATAR_REMOVAL_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 }

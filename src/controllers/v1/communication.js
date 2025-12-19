@@ -1,4 +1,6 @@
 const communicationService = require('@services/communication')
+const responses = require('@helpers/responses')
+const httpStatusCode = require('@generics/http-status')
 
 module.exports = class Communication {
 	/**
@@ -8,15 +10,17 @@ module.exports = class Communication {
 	 * @function signup
 	 * @param {Object} req - The request object containing the user details in `req.body`.
 	 * @returns {Promise<Object>} A response indicating signup success or failure.
-	 * - On success: `{ statusCode: 201, message: 'USER_SIGNED_UP', result: {...} }`
-	 * - On failure: Error object with message.
 	 */
 	async signup(req) {
 		try {
-			const { tenant_code, ...bodyData } = req.body
-			return await communicationService.signup(bodyData, tenant_code)
+			return await communicationService.signup(req.body)
 		} catch (error) {
-			return error
+			console.error('Controller signup error:', error)
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'SIGNUP_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
@@ -27,16 +31,17 @@ module.exports = class Communication {
 	 * @function login
 	 * @param {Object} req - The request object containing `user_id` in `req.body`.
 	 * @returns {Promise<Object>} A response object indicating login status.
-	 * - On success: `{ statusCode: 200, message: 'USER_LOGGED_IN', result: {...} }`
-	 * - On failure: Error object with message.
 	 */
-
 	async login(req) {
 		try {
-			const { tenant_code, ...bodyData } = req.body
-			return await communicationService.login(bodyData, tenant_code)
+			return await communicationService.login(req.body)
 		} catch (error) {
-			return error
+			console.error('Controller login error:', error)
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'LOGIN_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
@@ -52,10 +57,14 @@ module.exports = class Communication {
 	 */
 	async logout(req) {
 		try {
-			const { tenant_code, ...bodyData } = req.body
-			return await communicationService.logout(bodyData, tenant_code)
+			return await communicationService.logout(req.body)
 		} catch (error) {
-			return error
+			console.error('Controller logout error:', error)
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'LOGOUT_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
@@ -71,10 +80,14 @@ module.exports = class Communication {
 	 */
 	async createRoom(req) {
 		try {
-			const { tenant_code, ...bodyData } = req.body
-			return await communicationService.createRoom(bodyData, tenant_code)
+			return await communicationService.createRoom(req.body)
 		} catch (error) {
-			return error
+			console.error('Controller createRoom error:', error)
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'ROOM_CREATION_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
@@ -90,10 +103,14 @@ module.exports = class Communication {
 	 */
 	async updateAvatar(req) {
 		try {
-			const { tenant_code, user_id, image_url } = req.body
-			return await communicationService.updateAvatar(user_id, image_url, tenant_code)
+			return await communicationService.updateAvatar(req.body)
 		} catch (error) {
-			return error
+			console.error('Controller error:', error)
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'OPERATION_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
@@ -109,10 +126,14 @@ module.exports = class Communication {
 	 */
 	async updateUser(req) {
 		try {
-			const { tenant_code, user_id, name } = req.body
-			return await communicationService.updateUser(user_id, name, tenant_code)
+			return await communicationService.updateUser(req.body)
 		} catch (error) {
-			return error
+			console.error('Controller error:', error)
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'OPERATION_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
@@ -128,10 +149,14 @@ module.exports = class Communication {
 	 */
 	async userMapping(req) {
 		try {
-			const { tenant_code, external_user_id } = req.body
-			return await communicationService.userMapping(external_user_id, tenant_code)
+			return await communicationService.userMapping(req.body)
 		} catch (error) {
-			return error
+			console.error('Controller error:', error)
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'OPERATION_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
@@ -150,10 +175,14 @@ module.exports = class Communication {
 	 */
 	async setActiveStatus(req) {
 		try {
-			const { tenant_code, user_id, activeStatus, confirmRelinquish } = req.body
-			return await communicationService.setActiveStatus(user_id, activeStatus, confirmRelinquish, tenant_code)
+			return await communicationService.setActiveStatus(req.body)
 		} catch (error) {
-			return error
+			console.error('Controller error:', error)
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'OPERATION_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 
@@ -172,10 +201,14 @@ module.exports = class Communication {
 	 */
 	async removeAvatar(req) {
 		try {
-			const { tenant_code, user_id } = req.body
-			return await communicationService.removeAvatar(user_id, tenant_code)
+			return await communicationService.removeAvatar(req.body)
 		} catch (error) {
-			return error
+			console.error('Controller error:', error)
+			return responses.failureResponse({
+				statusCode: httpStatusCode.internal_server_error,
+				message: 'OPERATION_FAILED',
+				responseCode: 'SERVER_ERROR',
+			})
 		}
 	}
 }
