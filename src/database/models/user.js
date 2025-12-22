@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			tenant_code: {
 				type: DataTypes.STRING,
-				allowNull: true,
+				allowNull: false,
 				primaryKey: true,
 			},
 		},
