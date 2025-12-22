@@ -164,52 +164,79 @@ module.exports = {
 
 			const tableName = 'users'
 
-			// Remove composite primary key constraint
-			try {
-				const currentConstraints = await queryInterface.sequelize.query(
-					`SELECT constraint_name 
-					FROM information_schema.table_constraints 
-					WHERE table_name = :tableName 
-					AND constraint_type = 'PRIMARY KEY'`,
-					{
-						replacements: { tableName },
-						type: queryInterface.sequelize.QueryTypes.SELECT,
-						transaction,
-					}
-				)
+			// Remove composite primary key constraint and restore original
+			const currentConstraints = await queryInterface.sequelize.query(
+				`SELECT constraint_name 
+				FROM information_schema.table_constraints 
+				WHERE table_name = :tableName 
+				AND constraint_type = 'PRIMARY KEY'`,
+				{
+					replacements: { tableName },
+					type: queryInterface.sequelize.QueryTypes.SELECT,
+					transaction,
+				}
+			)
 
-				if (currentConstraints.length > 0) {
-					const constraintName = currentConstraints[0].constraint_name
+			if (currentConstraints.length > 0) {
+				const constraintName = currentConstraints[0].constraint_name
+				// Only drop if it's not the original users_pkey constraint
+				if (constraintName !== 'users_pkey') {
 					await queryInterface.sequelize.query(`ALTER TABLE ${tableName} DROP CONSTRAINT ${constraintName}`, {
 						transaction,
 					})
-					console.log(`✅ Removed composite primary key constraint`)
-				}
+					console.log(`✅ Removed composite primary key constraint: ${constraintName}`)
 
-				// Restore original primary key
-				await queryInterface.sequelize.query(
-					`ALTER TABLE ${tableName} ADD CONSTRAINT users_pkey PRIMARY KEY (user_id)`,
-					{ transaction }
-				)
-				console.log(`✅ Restored original primary key (user_id)`)
-			} catch (error) {
-				console.log(`⚠️  Could not update primary key constraints: ${error.message}`)
+					// Restore original primary key
+					await queryInterface.sequelize.query(
+						`ALTER TABLE ${tableName} ADD CONSTRAINT users_pkey PRIMARY KEY (user_id)`,
+						{ transaction }
+					)
+					console.log(`✅ Restored original primary key (user_id)`)
+				} else {
+					console.log(`ℹ️  Original primary key already in place: ${constraintName}`)
+				}
+			} else {
+				console.log(`ℹ️  No primary key constraint found`)
 			}
 
-			// Remove index
-			try {
+			// Remove index if exists
+			const indexExists = await queryInterface.sequelize.query(
+				`SELECT indexname 
+				FROM pg_indexes 
+				WHERE tablename = :tableName 
+				AND indexname = :indexName`,
+				{
+					replacements: { tableName, indexName: 'idx_users_tenant_code' },
+					type: queryInterface.sequelize.QueryTypes.SELECT,
+					transaction,
+				}
+			)
+
+			if (indexExists.length > 0) {
 				await queryInterface.removeIndex(tableName, 'idx_users_tenant_code', { transaction })
 				console.log(`✅ Removed index: idx_users_tenant_code`)
-			} catch (error) {
-				console.log(`⚠️  Could not remove index: ${error.message}`)
+			} else {
+				console.log(`ℹ️  Index idx_users_tenant_code does not exist`)
 			}
 
-			// Remove tenant_code column
-			try {
+			// Remove tenant_code column if exists
+			const columnExists = await queryInterface.sequelize.query(
+				`SELECT column_name 
+				FROM information_schema.columns 
+				WHERE table_name = :tableName 
+				AND column_name = :columnName`,
+				{
+					replacements: { tableName, columnName: 'tenant_code' },
+					type: queryInterface.sequelize.QueryTypes.SELECT,
+					transaction,
+				}
+			)
+
+			if (columnExists.length > 0) {
 				await queryInterface.removeColumn(tableName, 'tenant_code', { transaction })
 				console.log(`✅ Removed tenant_code column`)
-			} catch (error) {
-				console.log(`⚠️  Could not remove tenant_code column: ${error.message}`)
+			} else {
+				console.log(`ℹ️  Column tenant_code does not exist`)
 			}
 
 			await transaction.commit()

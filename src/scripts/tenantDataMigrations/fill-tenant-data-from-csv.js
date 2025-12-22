@@ -59,18 +59,10 @@ class TenantDataFiller {
 	async loadLookupData() {
 		console.log('🔄 Loading lookup data from CSV file...')
 
-		const possibleCsvPaths = [
-			path.join(__dirname, '../../../data/user_tenant_mapping.csv'),
-			path.join(__dirname, '../../data/user_tenant_mapping.csv'),
-			'/var/src/data/user_tenant_mapping.csv',
-			path.join(__dirname, '../../../src/data/user_tenant_mapping.csv'),
-		]
+		const csvPath = path.join(__dirname, '../../data/user_tenant_mapping.csv')
 
-		const csvPath = possibleCsvPaths.find((p) => fs.existsSync(p))
-
-		if (!csvPath) {
-			console.log('⚠️  No user_tenant_mapping.csv file found - will use default tenant code for all users')
-			return 0
+		if (!fs.existsSync(csvPath)) {
+			throw new Error(`❌ CSV file not found: ${csvPath} - This file is required for tenant data migration`)
 		}
 
 		console.log(`📁 Found CSV file: ${csvPath}`)
@@ -88,8 +80,16 @@ class TenantDataFiller {
 				})
 				.on('end', () => {
 					this.stats.csvRecords = this.userTenantLookupCache.size
-					console.log(`✅ CSV loaded: ${this.stats.csvRecords} user-tenant mappings`)
-					resolve(this.stats.csvRecords)
+					if (this.stats.csvRecords === 0) {
+						reject(
+							new Error(
+								'❌ CSV file is empty or contains no valid user-tenant mappings - This file must contain data for tenant migration'
+							)
+						)
+					} else {
+						console.log(`✅ CSV loaded: ${this.stats.csvRecords} user-tenant mappings`)
+						resolve(this.stats.csvRecords)
+					}
 				})
 				.on('error', (error) => {
 					console.error('❌ Error loading CSV:', error)

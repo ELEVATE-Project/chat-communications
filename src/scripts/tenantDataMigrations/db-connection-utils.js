@@ -24,7 +24,9 @@ class DatabaseConnectionManager {
 		}
 
 		if (!databaseUrl) {
-			throw new Error('Database URL not configured. Set DATABASE_URL or DEV_DATABASE_URL environment variable.')
+			throw new Error(
+				'Database URL not configured. Set PROD_DATABASE_URL, TEST_DATABASE_URL, or DEV_DATABASE_URL environment variable.'
+			)
 		}
 
 		// Pool configuration with environment variable support
@@ -141,7 +143,7 @@ class DatabaseConnectionManager {
 			}
 			validation.connectivity = true
 
-			// 2. Test basic permissions (SELECT, INSERT, UPDATE, DELETE)
+			// 2. Test basic permission (SELECT)
 			try {
 				await this.sequelize.query('SELECT 1', { type: QueryTypes.SELECT })
 				validation.permissions = true
