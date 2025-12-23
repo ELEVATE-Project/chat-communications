@@ -28,15 +28,14 @@ const buildSignupPayload = (name, username, password, email) => ({
 const handleError = (error) => {
 	if (error.response) {
 		if (error.response.status === 401) {
-			console.log('Unauthorized access - check your credentials or token', error.message)
 			throw new Error('unauthorized')
 		}
 		if (error.response.status === 400 && error.response.data.errorType === 'error-invalid-user') {
-			console.log('Unauthorized error-invalid-user - check your credentials or token')
 			throw new Error('invalid-users')
 		}
+		// Handle other response errors
+		throw new Error(`RocketChat API error: ${error.response.status}`)
 	} else {
-		console.log('Error occurred in Rocket.Chat API call::', error.message)
 		throw error
 	}
 }
@@ -238,10 +237,10 @@ exports.setActiveStatus = async (activeStatus, userId, confirmRelinquish = true)
 exports.resetAvatar = async (username) => {
 	try {
 		const payload = {
-			username
+			username,
 		}
 
-		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.USERS_RESET_AVATAR,payload)
+		const response = await chatPlatformAxios.post(apiEndpoints.ROCKETCHAT.USERS_RESET_AVATAR, payload)
 		return response.data
 	} catch (error) {
 		return handleError(error)

@@ -1,4 +1,6 @@
 const communicationService = require('@services/communication')
+const responses = require('@helpers/responses')
+const httpStatusCode = require('@generics/http-status')
 
 module.exports = class Communication {
 	/**
@@ -8,8 +10,6 @@ module.exports = class Communication {
 	 * @function signup
 	 * @param {Object} req - The request object containing the user details in `req.body`.
 	 * @returns {Promise<Object>} A response indicating signup success or failure.
-	 * - On success: `{ statusCode: 201, message: 'USER_SIGNED_UP', result: {...} }`
-	 * - On failure: Error object with message.
 	 */
 	async signup(req) {
 		try {
@@ -26,10 +26,7 @@ module.exports = class Communication {
 	 * @function login
 	 * @param {Object} req - The request object containing `user_id` in `req.body`.
 	 * @returns {Promise<Object>} A response object indicating login status.
-	 * - On success: `{ statusCode: 200, message: 'USER_LOGGED_IN', result: {...} }`
-	 * - On failure: Error object with message.
 	 */
-
 	async login(req) {
 		try {
 			return await communicationService.login(req.body)
@@ -86,7 +83,7 @@ module.exports = class Communication {
 	 */
 	async updateAvatar(req) {
 		try {
-			return await communicationService.updateAvatar(req.body.user_id, req.body.image_url)
+			return await communicationService.updateAvatar(req.body)
 		} catch (error) {
 			return error
 		}
@@ -104,7 +101,7 @@ module.exports = class Communication {
 	 */
 	async updateUser(req) {
 		try {
-			return await communicationService.updateUser(req.body.user_id, req.body.name)
+			return await communicationService.updateUser(req.body)
 		} catch (error) {
 			return error
 		}
@@ -122,7 +119,7 @@ module.exports = class Communication {
 	 */
 	async userMapping(req) {
 		try {
-			return await communicationService.userMapping(req.body.external_user_id)
+			return await communicationService.userMapping(req.body)
 		} catch (error) {
 			return error
 		}
@@ -143,11 +140,7 @@ module.exports = class Communication {
 	 */
 	async setActiveStatus(req) {
 		try {
-			return await communicationService.setActiveStatus(
-				req.body.user_id,
-				req.body.activeStatus,
-				req.body.confirmRelinquish
-			)
+			return await communicationService.setActiveStatus(req.body)
 		} catch (error) {
 			return error
 		}
@@ -168,7 +161,7 @@ module.exports = class Communication {
 	 */
 	async removeAvatar(req) {
 		try {
-			return await communicationService.removeAvatar(req.body.user_id)
+			return await communicationService.removeAvatar(req.body)
 		} catch (error) {
 			return error
 		}
