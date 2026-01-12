@@ -319,6 +319,23 @@ module.exports = class CommunicationHelper {
 		const externalUserId = bodyData.external_user_id
 		delete bodyData.tenant_code
 
+		// Validate required parameters
+		if (!tenantCode) {
+			return responses.failureResponse({
+				message: 'TENANT_CODE_REQUIRED',
+				statusCode: httpStatusCode.bad_request,
+				responseCode: 'CLIENT_ERROR',
+			})
+		}
+
+		if (!externalUserId) {
+			return responses.failureResponse({
+				message: 'EXTERNAL_USER_ID_REQUIRED',
+				statusCode: httpStatusCode.bad_request,
+				responseCode: 'CLIENT_ERROR',
+			})
+		}
+
 		try {
 			// Fetch user details based on external user ID
 			const userDetails = await userQueries.findUserWithJsonbFilter(
@@ -338,13 +355,14 @@ module.exports = class CommunicationHelper {
 			// Return a success response with user details
 			return responses.successResponse({
 				statusCode: httpStatusCode.ok,
-				message: 'NAME_UPDATED',
+				message: 'USER_MAPPED_SUCCESSFULLY',
 				result: {
 					user_id: userDetails.user_id,
 					external_user_id: userDetails.user_info.external_user_id,
 				},
 			})
 		} catch (error) {
+			console.error('Error in userMapping:', error)
 			return responses.failureResponse({
 				statusCode: httpStatusCode.internal_server_error,
 				message: 'USER_MAPPING_FAILED',
