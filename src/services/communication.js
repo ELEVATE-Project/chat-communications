@@ -318,12 +318,6 @@ module.exports = class CommunicationHelper {
 		const tenantCode = bodyData.tenant_code
 		const externalUserId = bodyData.external_user_id
 
-		console.log('tenantCode', tenantCode)
-		console.log('externalUserId', externalUserId)
-		console.log('bodyData', bodyData)
-		console.log('bodyData.tenant_code', bodyData.tenant_code)
-		console.log('bodyData.external_user_id', bodyData.external_user_id)
-		console.log('bodyData.tenant_code', bodyData.tenant_code)
 		// Validate required parameters
 		if (!tenantCode) {
 			return responses.failureResponse({
