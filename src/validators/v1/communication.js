@@ -8,7 +8,7 @@ module.exports = {
 			.isString()
 			.withMessage('User ID must be a string.'),
 		check('name').notEmpty().withMessage('Name is required.').isString().withMessage('Name must be a string.'),
-		check('email').notEmpty().withMessage('Email is required.').isEmail().withMessage('Invalid email format.'),
+		check('email').optional().isEmail().withMessage('Invalid email format.'),
 		check('image_url').optional().isURL().withMessage('Image URL must be a valid URL.'),
 	],
 	login: [

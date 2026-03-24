@@ -93,6 +93,12 @@ let environmentVariables = {
 		optional: true,
 		default: '8',
 	},
+
+	CHAT_USER_EMAIL_DOMAIN: {
+		message: 'Domain used for synthetic RC emails (e.g. yopmail.com for dev)',
+		optional: true,
+		default: 'yopmail.com',
+	},
 }
 
 let success = true
