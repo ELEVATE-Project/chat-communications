@@ -95,9 +95,9 @@ let environmentVariables = {
 	},
 
 	CHAT_USER_EMAIL_DOMAIN: {
-		message: 'Domain used for synthetic RC emails (e.g. yopmail.com for dev)',
+		message: 'Domain used for synthetic chat user emails (e.g. example.invalid)',
 		optional: true,
-		default: 'yopmail.com',
+		default: 'example.invalid',
 	},
 }
 

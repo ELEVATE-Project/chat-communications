@@ -51,11 +51,11 @@ module.exports = class CommunicationHelper {
 		}
 
 		try {
-			const rcUsername = usernameHash(bodyData.user_id)
-			const syntheticEmail = `${rcUsername}@${process.env.CHAT_USER_EMAIL_DOMAIN}`
+			const chatUsername = usernameHash(bodyData.user_id)
+			const syntheticEmail = `${chatUsername}@${process.env.CHAT_USER_EMAIL_DOMAIN}`
 			let chatResponse = await chatAPIs.signup(
 				bodyData.name,
-				rcUsername,
+				chatUsername,
 				passwordHash(bodyData.user_id),
 				syntheticEmail
 			)
