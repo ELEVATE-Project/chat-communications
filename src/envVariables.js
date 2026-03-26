@@ -93,6 +93,12 @@ let environmentVariables = {
 		optional: true,
 		default: '8',
 	},
+
+	CHAT_USER_EMAIL_DOMAIN: {
+		message: 'Domain used for synthetic chat user emails (e.g. example.invalid)',
+		optional: true,
+		default: 'example.invalid',
+	},
 }
 
 let success = true
