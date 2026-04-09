@@ -75,6 +75,8 @@ async function run() {
 			{ _id: 'Accounts_AllowPasswordChange', value: false },
 			{ _id: 'Accounts_AllowPasswordChangeForOAuthUsers', value: false },
 			{ _id: 'Accounts_AllowEmailNotifications', value: false },
+			{ _id: 'Accounts_AvatarBlockUnauthenticatedAccess', value: false },
+			{ _id: 'Accounts_AllowAnonymousAvatarAccess', value: true },
 		],
 		'Save Settings Group 1'
 	)
